@@ -1,0 +1,54 @@
+/* Add your CSS styles here */
+body{
+
+  background-color:lightblue;
+
+}
+#game-container {
+    display: grid;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    border: 1px solid black;
+}
+
+.cell.circle {
+    border-radius: 50%;
+}
+
+.cell.black {
+    background-color: black;
+}
+
+.cell.white {
+    background-color: white;
+}
+
+.cell.path {
+    background-color: grey;
+}
+.cell.selected {
+    border: 2px solid blue; /* Example of a selected cell border */
+}
+
+.line {
+    position: absolute;
+    background-color: red; /* Example of line color */
+    z-index: 1; /* Make sure the line is behind cells */
+    border-radius: 2px; /* Adjust border-radius to match cell border */
+}
+
+.line.vertical {
+    width: 2px; /* Set width of vertical lines */
+    height: 50px; /* Set height of vertical lines */
+    top: -1px; /* Move the line up by the border width to align properly */
+}
+
+.line.horizontal {
+    width: 50px; /* Set width of horizontal lines */
+    height: 2px; /* Set height of horizontal lines */
+    left: -1px; /* Move the line left by the border width to align properly */
+}
+
