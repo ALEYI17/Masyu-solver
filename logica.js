@@ -121,23 +121,76 @@ class Graph {
             return false;
         }
 
+              // falta hacer la configuracion de las negras
 
-      // falta hacer la configuracion de las negras
-
-        if(node.circleType == "white"){
+        if(node.circleType == 1 ){
           if(node.vecinoarriba && node.vecinoabajo){
             if(node.vecinoarriba.vecinoderecha || node.vecinoarriba.vecinoizquierda || node.vecinoabajo.vecinoderecha ||  node.vecinoabajo.vecinoizquierda){
               return CircleValid;
-            } 
+            }else{
+
+              return false;
+
+            }
           }else if(node.vecinoderecha && node.vecinoizquierda ){
             if(node.vecinoderecha.vecinoabajo || node.vecinoderecha.vecinoarriba || node.vecinoizquierda.vecinoabajo ||  node.vecinoizquierda.vecinoarriba){
               return CircleValid;
+            }else{
+              return false;
             }
+
+          }else{
+            return false;
+          }
+
+        }else if(node.circleType == 2 ){
+
+
+
+          if(node.vecinoarriba){
+            if(node.vecinoderecha ){
+
+              if(node.vecinoderecha.vecinoderecha && node.vecinoarriba.vecinoarriba ){
+                return CircleValid
+              }else{
+                return false
+              }
+              
+            }else if(node.vecinoizquierda){
+              console.log("debe entrar aqui")
+
+              if(node.vecinoizquierda.vecinoizquierda && node.vecinoarriba.vecinoarriba ){
+                return CircleValid
+              }else{
+                return false
+              }
+            }
+          }else if( node.vecinoabajo ){
+            if(node.vecinoderecha){
+              if(node.vecinoderecha.vecinoderecha && node.vecinoabajo.vecinoabajo ){
+                return CircleValid
+              }else{
+                return false
+              }
+              
+            }else if(node.vecinoizquierda){
+
+              if(node.vecinoizquierda.vecinoizquierda && node.vecinoabajo.vecinoabajo ){
+                return CircleValid
+              }else{
+                return false
+              }
+            }else{
+              return false;
+            }
+
 
           }else{
             return false
           }
+  
 
+          
         }
 
 
