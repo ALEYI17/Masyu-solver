@@ -4,12 +4,177 @@ let firstClickedCell = null;
 let selectedCell = null;
 let selectedRow = null;
 let selectedCol = null;
+let grafo = null;
 
-
-// Initialize the grid
-for (let i = 0; i < GRID_SIZE; i++) {
-    grid.push(new Array(GRID_SIZE).fill(null));
+class Node {
+    constructor(row, col) {
+        this.row = row;
+        this.col = col;
+        this.circleType = null; // 'black', 'white', or null if no circle
+        this.lineThrough = false; // Indicates if a line passes through this node
+        this.vecinoarriba=null
+        this.vecinoabajo = null
+        this.vecinoderecha = null
+        this.vecinoizquierda = null// Array of neighboring nodes
+    }
 }
+
+class Graph {
+    constructor(gridSize) {
+        this.gridSize = gridSize;
+        this.nodes = [];
+
+        // Create nodes for each cell in the grid
+        for (let row = 0; row < gridSize; row++) {
+            for (let col = 0; col < gridSize; col++) {
+                this.nodes.push(new Node(row, col));
+            }
+        }
+
+      
+    }
+
+    getNode(row, col) {
+        // Get the node at the specified row and column
+        return this.nodes[row * this.gridSize + col];
+    }
+
+    setColor(row,col,circle){
+      nodeToUpdate = this.getNode(row,col);
+      nodeToUpdate.circleType = circle;
+    }
+
+
+    connectNodesByIndices(row1, col1, row2, col2) {
+        const node1 = this.getNode(row1, col1);
+        const node2 = this.getNode(row2, col2);
+
+        // Ensure nodes are not null
+        if (node1 && node2) {
+            // Connect node1 to node2
+            if (node1.row === node2.row) {
+                // Nodes are in the same row, so they are either neighbors horizontally
+                if (node1.col === node2.col - 1) {
+                    node1.vecinoderecha = node2;
+                    node2.vecinoizquierda = node1;
+                } else if (node1.col === node2.col + 1) {
+                    node1.vecinoizquierda = node2;
+                    node2.vecinoderecha = node1;
+                }
+            } else if (node1.col === node2.col) {
+                // Nodes are in the same column, so they are either neighbors vertically
+                if (node1.row === node2.row - 1) {
+                    node1.vecinoabajo = node2;
+                    node2.vecinoarriba = node1;
+                } else if (node1.row === node2.row + 1) {
+                    node1.vecinoarriba = node2;
+                    node2.vecinoabajo = node1;
+                }
+            }
+        }
+    }
+    deleteConnectionByIndices(row1, col1, row2, col2) {
+        const node1 = this.getNode(row1, col1);
+        const node2 = this.getNode(row2, col2);
+
+        // Ensure nodes are not null
+        if (node1 && node2) {
+            // Disconnect node1 from node2
+            if (node1.row === node2.row) {
+                // Nodes are in the same row, so they are either neighbors horizontally
+                if (node1.col === node2.col - 1) {
+                    node1.vecinoderecha = null;
+                    node2.vecinoizquierda = null;
+                } else if (node1.col === node2.col + 1) {
+                    node1.vecinoizquierda = null;
+                    node2.vecinoderecha = null;
+                }
+            } else if (node1.col === node2.col) {
+                // Nodes are in the same column, so they are either neighbors vertically
+                if (node1.row === node2.row - 1) {
+                    node1.vecinoabajo = null;
+                    node2.vecinoarriba = null;
+                } else if (node1.row === node2.row + 1) {
+                    node1.vecinoarriba = null;
+                    node2.vecinoabajo = null;
+                }
+            }
+        }
+    }
+
+    verifyNode(node) {
+        console.log(node);
+        let connectedCount = 0;
+        let CircleValid = true;
+
+        // Check if there's a connection in each direction and count them
+        if (node.vecinoarriba) connectedCount++;
+        if (node.vecinoabajo) connectedCount++;
+        if (node.vecinoderecha) connectedCount++;
+        if (node.vecinoizquierda) connectedCount++;
+
+        // Check if the node has exactly two connections
+        if (connectedCount == 0){
+          return true;
+        }
+        if (connectedCount !== 2) {
+            return false;
+        }
+
+
+      // falta hacer la configuracion de las negras
+
+        if(node.circleType == "white"){
+          if(node.vecinoarriba && node.vecinoabajo){
+            if(node.vecinoarriba.vecinoderecha || node.vecinoarriba.vecinoizquierda || node.vecinoabajo.vecinoderecha ||  node.vecinoabajo.vecinoizquierda){
+              return CircleValid;
+            } 
+          }else if(node.vecinoderecha && node.vecinoizquierda ){
+            if(node.vecinoderecha.vecinoabajo || node.vecinoderecha.vecinoarriba || node.vecinoizquierda.vecinoabajo ||  node.vecinoizquierda.vecinoarriba){
+              return CircleValid;
+            }
+
+          }else{
+            return false
+          }
+
+        }
+
+
+    return CircleValid
+
+
+    }
+
+    verifyend() {
+        // Iterate through each node to verify
+        for (let node of this.nodes) {
+            if (!this.verifyNode(node)) {
+                // If a node doesn't have exactly two connections, return false
+                return false;
+            }
+        }
+        // All nodes have exactly two connections
+        return true;
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Function to create the game grid in the HTML
 function createGrid() {
@@ -17,7 +182,7 @@ function createGrid() {
 
     gameContainer.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 50px)`;
     gameContainer.style.gridTemplateRows = `repeat(${GRID_SIZE}, 50px)`;
-
+    grafo = new Graph(GRID_SIZE);
      for (let i = 0; i < GRID_SIZE; i++) {
         for (let j = 0; j < GRID_SIZE; j++) {
             const cell = document.createElement("div");
@@ -27,13 +192,16 @@ function createGrid() {
             const type = grid[i][j];
             if (type === 1) {
                 cell.classList.add("white", "circle");
+                grafo.getNode(i,j).circleType= 1 
             } else if (type === 2) {
+                grafo.getNode(i,j).circleType= 2
                 cell.classList.add("black", "circle");
             }
             cell.addEventListener("click", handleCellClick);
             gameContainer.appendChild(cell);
         }
     }
+  console.log(grafo)
 }
 
 function handleCellClick(event) {
@@ -52,9 +220,10 @@ function handleCellClick(event) {
         // Check if the clicked cell is adjacent to the first clicked cell
         if (isAdjacent(firstClickedCell, clickedCell)) {
             drawLine(firstClickedCell, clickedCell);
+            grafo.connectNodesByIndices(row,col,selectedRow,selectedCol);
             grid[row][col]=1;
             grid[selectedRow][selectedCol]=1;
-            console.log(grid);
+            console.log(grafo);
 
             // Deselect the previously selected cell
             if (selectedCell) {
@@ -123,10 +292,11 @@ function drawLine(cell1, cell2) {
         const startCol = parseInt(line.dataset.startCol);
         const endRow = parseInt(line.dataset.endRow);
         const endCol = parseInt(line.dataset.endCol);
+        grafo.deleteConnectionByIndices(startRow,startCol,endRow,endCol);
         grid[startRow][startCol] = null;
         grid[endRow][endCol] = null;
-
-        console.log(grid);
+        console.log(grafo);
+        //console.log(grid);
         line.remove();
     });
 
@@ -167,6 +337,12 @@ function parseFile(contents) {
 function initializeGame() {
     document.getElementById("file-input").addEventListener("change", handleFileInput);
 }
+
+
+function verificarRespuesta(){
+  console.log(grafo.verifyend());
+}
+
 
 // Initialize the game when the DOM is ready
 document.addEventListener("DOMContentLoaded", initializeGame);
