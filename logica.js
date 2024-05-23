@@ -631,25 +631,32 @@ class Solver {
       for(let node of ListWitheEdge){
         let edge = this.graph.getEdge(node.row,node.col);
         console.log(edge)
-        switch (edge) {
+        let nodoDerecha = this.graph.getNode(node.row,node.col+1);
+        let nodoizquierda = this.graph.getNode(node.row,node.col-1);
+        let nodoarriba = this.graph.getNode(node.row-1,node.col);
+        let nodoabajo = this.graph.getNode(node.row+1,node.col);
+      switch (edge) {
           case "top":
-            let nodoDerecha = this.graph.getNode(node.row,node.col+1);
-            let nodoizquierda = this.graph.getNode(node.row,node.col-1);
-
             DrawPlay(node,nodoDerecha);
             DrawPlay(node,nodoizquierda);
             
             break;
           case "right":
 
+            DrawPlay(node,nodoarriba);
+            DrawPlay(node,nodoabajo);
             break;
 
           case "left":
 
+            DrawPlay(node,nodoarriba);
+            DrawPlay(node,nodoabajo);
             break;
 
           case "bottom":
 
+            DrawPlay(node,nodoDerecha);
+            DrawPlay(node,nodoizquierda);
             break;
 
           default:
