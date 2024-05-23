@@ -229,6 +229,23 @@ class Graph {
 
         return adjacents;
     }
+    
+    getCorner(row, col) {
+        if (row === 0 && col === 0) return 'top-left';
+        if (row === 0 && col === this.gridSize - 1) return 'top-right';
+        if (row === this.gridSize - 1 && col === 0) return 'bottom-left';
+        if (row === this.gridSize - 1 && col === this.gridSize - 1) return 'bottom-right';
+        return null;
+    }
+
+    getCornerOneSpace(row, col) {
+        if (row === 1 && col === 1) return 'top-left';
+        if (row === 1 && col === this.gridSize - 2) return 'top-right';
+        if (row === this.gridSize - 2 && col === 1) return 'bottom-left';
+        if (row === this.gridSize - 2 && col === this.gridSize - 2) return 'bottom-right';
+        return null;
+    }
+
 
     getWhiteCirclesAtEdge() {
         const whiteCircles = [];
@@ -252,7 +269,7 @@ class Graph {
             for (let col = 0; col < this.gridSize; col++) {
                 if ((row === 0 || row === this.gridSize - 1 || col === 0 || col === this.gridSize - 1) &&
                     this.getNode(row, col).circleType === 2) {
-                    blackCircles.push(this.getNode(row, col));
+                    blackCircles.push({ node: this.getNode(row, col), edge: this.getEdge(row, col), corner: this.getCorner(row, col) });
                 }
             }
         }
@@ -260,14 +277,14 @@ class Graph {
         return blackCircles;
     }
 
- getBlackCirclesOneSpaceFromEdge() {
+    getBlackCirclesOneSpaceFromEdge() {
         const blackCircles = [];
 
         for (let row = 1; row < this.gridSize - 1; row++) {
             for (let col = 1; col < this.gridSize - 1; col++) {
                 if ((row === 1 || row === this.gridSize - 2 || col === 1 || col === this.gridSize - 2) &&
-                    this.getNode(row, col).circleType === 1) {
-                    blackCircles.push({ node: this.getNode(row, col), edge: this.getEdge(row, col) });
+                    this.getNode(row, col).circleType === 2) {
+                    blackCircles.push({ node: this.getNode(row, col), edge: this.getEdge(row, col), corner: this.getCornerOneSpace(row, col) });
                 }
             }
         }
@@ -618,6 +635,7 @@ class Solver {
       console.log("White Circles at Edge:", whiteCirclesAtEdge);
       this.drawWhiteEdge(whiteCirclesAtEdge);
       console.log("Black Circles at Edge:", blackCirclesAtEdge);
+      this.drawBlackEdge(blackCirclesAtEdge);
       console.log("Black Circles One Space from Edge:", blackCirclesOneSpaceFromEdge);
       console.log("Three or More White Circles in Line:", threeOrMoreWhiteCirclesInLine);
       console.log("Two Adjacent Black Circles:", twoAdjacentWhiteCircles);
@@ -630,7 +648,7 @@ class Solver {
     drawWhiteEdge(ListWitheEdge){
       for(let node of ListWitheEdge){
         let edge = this.graph.getEdge(node.row,node.col);
-        console.log(edge)
+
         let nodoDerecha = this.graph.getNode(node.row,node.col+1);
         let nodoizquierda = this.graph.getNode(node.row,node.col-1);
         let nodoarriba = this.graph.getNode(node.row-1,node.col);
@@ -664,6 +682,107 @@ class Solver {
         }
       }
     }
+
+
+    drawBlackEdge(ListBlackEdge){
+
+
+      for(let nodeClass of ListBlackEdge){
+        let node = nodeClass.node
+        let edge = nodeClass.edge
+        let corner = nodeClass.corner
+        let nodoDerecha = this.graph.getNode(node.row,node.col+1);
+        let nodoizquierda = this.graph.getNode(node.row,node.col-1);
+        let nodoarriba = this.graph.getNode(node.row-1,node.col);
+        let nodoabajo = this.graph.getNode(node.row+1,node.col);
+        let nodeDerechaDerecha;
+        let nodeIzquierdaIzquierda
+        let nodeArribaArriba
+        let nodoAbajoAbajo
+        if(nodoDerecha !== null){
+          nodeDerechaDerecha = this.graph.getNode(nodoDerecha.row,nodoDerecha.col+1);
+        }
+        if(nodoizquierda !== null){
+          nodeIzquierdaIzquierda = this.graph.getNode(nodoizquierda.row,nodoizquierda.col-1);
+        }
+        if(nodoarriba !== null){
+         nodeArribaArriba = this.graph.getNode(nodoarriba.col,nodoarriba.row-1);
+        }
+        if(nodoabajo !== null){
+          nodoAbajoAbajo = this.graph.getNode(nodoabajo.col,nodoabajo.row+1);
+        }
+                        
+       
+        console.log(node)
+        switch (edge) {
+            case "left":
+              DrawPlay(node,nodoDerecha);
+              DrawPlay(node,nodeDerechaDerecha);
+              if (corner === "top-left"){
+                DrawPlay(node,nodoabajo);
+                DrawPlay(nodoabajo,nodoAbajoAbajo);
+              }
+              if (corner === "bottom-left"){
+                DrawPlay(node,nodoarriba);
+                DrawPlay(nodoarriba,nodeArribaArriba);
+              }
+              
+              break;
+            case "right":
+
+              DrawPlay(node,nodoizquierda);
+              DrawPlay(nodoizquierda,nodoizquierda);
+              if (corner === "top-right"){
+                DrawPlay(node,nodoabajo);
+                DrawPlay(nodoabajo,nodoAbajoAbajo);
+              }
+              if (corner === "bottom-right"){
+                DrawPlay(node,nodoarriba);
+                DrawPlay(nodoarriba,nodeArribaArriba);
+              }
+              break;
+
+            case "top":
+
+              DrawPlay(node,nodoabajo);
+              DrawPlay(nodoabajo,nodoAbajoAbajo);
+              if (corner === "top-left"){
+                DrawPlay(node,nodoDerecha);
+                DrawPlay(node,nodeDerechaDerecha);
+              }
+              if (corner === "top-right"){
+                DrawPlay(node,nodoizquierda);
+                DrawPlay(nodoizquierda,nodoizquierda);
+              }
+              break;
+
+            case "bottom":
+
+              DrawPlay(node,nodoarriba);
+              DrawPlay(nodoarriba,nodeArribaArriba);
+              if (corner === "bottom-right"){
+
+                DrawPlay(node,nodoizquierda);
+                DrawPlay(nodoizquierda,nodoizquierda);
+              }
+              if (corner === "bottom-left"){
+                DrawPlay(node,nodoDerecha);
+              }
+              break;
+
+            default:
+              break;
+          }
+        }
+
+
+
+
+
+
+
+    }
+
 
     dfs(node, parent) {
         // Mark the current node as visited
