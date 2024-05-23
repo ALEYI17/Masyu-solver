@@ -680,6 +680,7 @@ class Solver {
       console.log("Black Circles at Edge:", blackCirclesAtEdge);
       this.drawBlackEdge(blackCirclesAtEdge);
       console.log("Black Circles One Space from Edge:", blackCirclesOneSpaceFromEdge);
+      this.drawBlackOneSpace(blackCirclesOneSpaceFromEdge);
       console.log("Three or More White Circles in Line:", threeOrMoreWhiteCirclesInLine);
       console.log("Two Adjacent Black Circles:", twoAdjacentWhiteCircles);
       console.log("Black Circle with White Corners:", blackCircleWithWhiteCorners);
@@ -752,10 +753,10 @@ class Solver {
           nodeIzquierdaIzquierda = this.graph.getNode(nodoizquierda.row,nodoizquierda.col-1);
         }
         if(nodoarriba !== null){
-         nodeArribaArriba = this.graph.getNode(nodoarriba.col,nodoarriba.row-1);
+         nodeArribaArriba = this.graph.getNode(nodoarriba.row-1,nodoarriba.col);
         }
         if(nodoabajo !== null){
-          nodoAbajoAbajo = this.graph.getNode(nodoabajo.col,nodoabajo.row+1);
+          nodoAbajoAbajo = this.graph.getNode(nodoabajo.row+1,nodoabajo.col);
         }
                         
        
@@ -777,7 +778,7 @@ class Solver {
             case "right":
 
               DrawPlay(node,nodoizquierda);
-              DrawPlay(nodoizquierda,nodoizquierda);
+              DrawPlay(nodoizquierda,nodeIzquierdaIzquierda);
               if (corner === "top-right"){
                 DrawPlay(node,nodoabajo);
                 DrawPlay(nodoabajo,nodoAbajoAbajo);
@@ -794,11 +795,11 @@ class Solver {
               DrawPlay(nodoabajo,nodoAbajoAbajo);
               if (corner === "top-left"){
                 DrawPlay(node,nodoDerecha);
-                DrawPlay(node,nodeDerechaDerecha);
+                DrawPlay(nodoDerecha,nodeDerechaDerecha);
               }
               if (corner === "top-right"){
                 DrawPlay(node,nodoizquierda);
-                DrawPlay(nodoizquierda,nodoizquierda);
+                DrawPlay(nodoizquierda,nodeIzquierdaIzquierda);
               }
               break;
 
@@ -809,10 +810,11 @@ class Solver {
               if (corner === "bottom-right"){
 
                 DrawPlay(node,nodoizquierda);
-                DrawPlay(nodoizquierda,nodoizquierda);
+                DrawPlay(nodoizquierda,nodeIzquierdaIzquierda);
               }
               if (corner === "bottom-left"){
                 DrawPlay(node,nodoDerecha);
+                DrawPlay(nodoDerecha,nodeDerechaDerecha);
               }
               break;
 
@@ -821,15 +823,101 @@ class Solver {
           }
         }
 
+    }
 
+    drawBlackOneSpace(ListOneSpace){
+      
+      for(let nodeClass of ListOneSpace){
+        console.log(nodeClass);
+        let node = nodeClass.node
+        let edge = nodeClass.edge
+        let corner = nodeClass.corner
+        let nodoDerecha = this.graph.getNode(node.row,node.col+1);
+        let nodoizquierda = this.graph.getNode(node.row,node.col-1);
+        let nodoarriba = this.graph.getNode(node.row-1,node.col);
+        let nodoabajo = this.graph.getNode(node.row+1,node.col);
+        let nodeDerechaDerecha;
+        let nodeIzquierdaIzquierda
+        let nodeArribaArriba
+        let nodoAbajoAbajo
+        if(nodoDerecha !== null){
+          nodeDerechaDerecha = this.graph.getNode(nodoDerecha.row,nodoDerecha.col+1);
+        }
+        if(nodoizquierda !== null){
+          nodeIzquierdaIzquierda = this.graph.getNode(nodoizquierda.row,nodoizquierda.col-1);
+        }
+        if(nodoarriba !== null){
+         nodeArribaArriba = this.graph.getNode(nodoarriba.row-1,nodoarriba.col);
+        }
+        if(nodoabajo !== null){
+          nodoAbajoAbajo = this.graph.getNode(nodoabajo.row+1,nodoabajo.col);
+        }
+        switch (edge) {
+          case "one-space from top":
+              DrawPlay(node,nodoabajo);
+              DrawPlay(nodoabajo,nodoAbajoAbajo);
+              if (corner === "top-left"){
+                DrawPlay(node,nodoDerecha);
+                DrawPlay(nodoDerecha,nodeDerechaDerecha);
+              }
+              if (corner === "top-right"){
+                DrawPlay(node,nodoizquierda);
+                DrawPlay(nodoizquierda,nodeIzquierdaIzquierda);
+              }
+         
+            break;
 
+          case "one-space from bottom":
+              DrawPlay(node,nodoarriba);
+              DrawPlay(nodoarriba,nodeArribaArriba);
+              if (corner === "bottom-left"){
+                DrawPlay(node,nodoDerecha);
+                DrawPlay(nodoDerecha,nodeDerechaDerecha);
+              }
+              if (corner === "bottom-right"){
+                DrawPlay(node,nodoizquierda);
+                DrawPlay(nodoizquierda,nodeIzquierdaIzquierda);
+              }
+            break;
 
+          case "one-space from left":
+            
+              DrawPlay(node,nodoDerecha);
+              DrawPlay(nodoarriba,nodeDerechaDerecha);
+              if (corner === "bottom-left"){
+                DrawPlay(node,nodoarriba);
+                DrawPlay(nodoarriba,nodeArribaArriba);
+              }
+              if (corner === "top-left"){
+                DrawPlay(node,nodoabajo);
+                DrawPlay(nodoabajo,nodoAbajoAbajo);
+              }
+
+            break;
+
+          case "one-space from right":
+              DrawPlay(node,nodoizquierda);
+              DrawPlay(nodoizquierda,nodeIzquierdaIzquierda);
+              if (corner === "bottom-right"){
+                DrawPlay(node,nodoarriba);
+                DrawPlay(nodoarriba,nodeArribaArriba);
+              }
+              if (corner === "top-right"){
+                DrawPlay(node,nodoabajo);
+                DrawPlay(nodoabajo,nodoAbajoAbajo);
+              } 
+            break;
+
+          default:
+            break;
+        }
+       
+
+      }
 
 
 
     }
-
-
     dfs(node, parent) {
         // Mark the current node as visited
         this.visited.add(node);
