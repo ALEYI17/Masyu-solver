@@ -36,7 +36,10 @@ class Graph {
 
     getNode(row, col) {
         // Get the node at the specified row and column
-        return this.nodes[row * this.gridSize + col];
+        if (row >= 0 && row < this.gridSize && col >= 0 && col < this.gridSize) {
+            return this.nodes[row * this.gridSize + col];
+        }
+        return null; // Return null if out of bounds
     }
 
     setColor(row,col,circle){
@@ -212,6 +215,180 @@ class Graph {
     }
 
 
+    //nuevas funciones para el solve
+
+    getAdjacents(row, col) {
+        const node = this.getNode(row, col);
+        if (!node) return [];
+
+        const adjacents = [];
+        if (node.vecinoarriba) adjacents.push(this.getNode(row,col+1));
+        if (node.vecinoabajo) adjacents.push(this.getNode(row,col-1));
+        if (node.vecinoderecha) adjacents.push(this.getNode(row+1,col));
+        if (node.vecinoizquierda) adjacents.push(this.getNode(row-1,col));
+
+        return adjacents;
+    }
+
+    getWhiteCirclesAtEdge() {
+        const whiteCircles = [];
+
+        for (let row = 0; row < this.gridSize; row++) {
+            for (let col = 0; col < this.gridSize; col++) {
+                if ((row === 0 || row === this.gridSize - 1 || col === 0 || col === this.gridSize - 1) &&
+                    this.getNode(row, col).circleType === 1) {
+                    whiteCircles.push(this.getNode(row, col));
+                }
+            }
+        }
+
+        return whiteCircles;
+    }
+
+    getBlackCirclesAtEdge() {
+        const blackCircles = [];
+
+        for (let row = 0; row < this.gridSize; row++) {
+            for (let col = 0; col < this.gridSize; col++) {
+                if ((row === 0 || row === this.gridSize - 1 || col === 0 || col === this.gridSize - 1) &&
+                    this.getNode(row, col).circleType === 2) {
+                    blackCircles.push(this.getNode(row, col));
+                }
+            }
+        }
+
+        return blackCircles;
+    }
+
+ getBlackCirclesOneSpaceFromEdge() {
+        const blackCircles = [];
+
+        for (let row = 1; row < this.gridSize - 1; row++) {
+            for (let col = 1; col < this.gridSize - 1; col++) {
+                if ((row === 1 || row === this.gridSize - 2 || col === 1 || col === this.gridSize - 2) &&
+                    this.getNode(row, col).circleType === 1) {
+                    blackCircles.push({ node: this.getNode(row, col), edge: this.getEdge(row, col) });
+                }
+            }
+        }
+
+        return blackCircles;
+    }
+
+    getEdge(row, col) {
+        if (row === 0) return 'top';
+        if (row === this.gridSize - 1) return 'bottom';
+        if (col === 0) return 'left';
+        if (col === this.gridSize - 1) return 'right';
+        if (row === 1) return 'one-space from top';
+        if (row === this.gridSize - 2) return 'one-space from bottom';
+        if (col === 1) return 'one-space from left';
+        if (col === this.gridSize - 2) return 'one-space from right';
+        return 'interior';
+    }
+
+    getThreeOrMoreWhiteCirclesInLine() {
+        const whiteCircles = [];
+        
+        // Check rows for 3 or more consecutive white circles
+        for (let row = 0; row < this.gridSize; row++) {
+            let count = 0;
+            let sequence = [];
+            for (let col = 0; col < this.gridSize; col++) {
+                const node = this.getNode(row, col);
+                if (node && node.circleType === 1) {
+                    count++;
+                    sequence.push(node);
+                    if (count >= 3) {
+                        whiteCircles.push({ nodes: [...sequence], direction: 'horizontal' });
+                    }
+                } else {
+                    count = 0;
+                    sequence = [];
+                }
+            }
+        }
+
+        // Check columns for 3 or more consecutive white circles
+        for (let col = 0; col < this.gridSize; col++) {
+            let count = 0;
+            let sequence = [];
+            for (let row = 0; row < this.gridSize; row++) {
+                const node = this.getNode(row, col);
+                if (node && node.circleType === 1) {
+                    count++;
+                    sequence.push(node);
+                    if (count >= 3) {
+                        whiteCircles.push({ nodes: [...sequence], direction: 'vertical' });
+                    }
+                } else {
+                    count = 0;
+                    sequence = [];
+                }
+            }
+        }
+
+        return whiteCircles;
+    }
+
+
+    getTwoAdjacentBlackeCircles() {
+        const adjacentWhiteCircles = [];
+
+        for (let row = 0; row < this.gridSize; row++) {
+            for (let col = 0; col < this.gridSize; col++) {
+                const node = this.getNode(row, col);
+                if (node && node.circleType === 2) {
+                    // Check horizontal adjacency
+                    const rightNode = this.getNode(row, col + 1);
+                    if (rightNode && rightNode.circleType === 2) {
+                        adjacentWhiteCircles.push({ nodes: [node, rightNode], direction: 'horizontal' });
+                    }
+
+                    // Check vertical adjacency
+                    const bottomNode = this.getNode(row + 1, col);
+                    if (bottomNode && bottomNode.circleType === 2) {
+                        adjacentWhiteCircles.push({ nodes: [node, bottomNode], direction: 'vertical' });
+                    }
+                }
+            }
+        }
+
+        return adjacentWhiteCircles;
+    }
+
+
+    getBlackCircleWithWhiteCorners() {
+        const blackCirclesWithWhiteCorners = [];
+
+        for (let row = 0; row < this.gridSize; row++) {
+            for (let col = 0; col < this.gridSize; col++) {
+                const node = this.getNode(row, col);
+                if (node && node.circleType === 1) {
+                    // Check top-left and bottom-right corners
+                    const topLeft = this.getNode(row - 1, col - 1);
+                    const topRight = this.getNode(row - 1, col + 1);
+                    if (topLeft && topLeft.circleType === 2 && topRight && topRight.circleType === 2) {
+                        blackCirclesWithWhiteCorners.push({ node, corners: [topLeft, topRight],direction: 'top' });
+                    }
+
+                    // Check top-right and bottom-left corners
+                    const bottomRight = this.getNode(row + 1, col + 1);
+                    const bottomLeft = this.getNode(row + 1, col - 1);
+                    if (bottomRight && bottomRight.circleType === 2 && bottomLeft && bottomLeft.circleType === 2) {
+                        blackCirclesWithWhiteCorners.push({ node, corners: [bottomRight, bottomLeft],direction: 'bottom' });
+                    }
+                }
+            }
+        }
+
+        return blackCirclesWithWhiteCorners;
+    }
+
+
+
+
+
 }
 
 
@@ -384,6 +561,8 @@ function parseFile(contents) {
         grid[row - 1][col - 1] = parseInt(type);
     }
     createGrid();
+    const solver = new Solver(grafo);
+    const result = solver.solve();
 }
 
 //Function to initialize the game
@@ -399,4 +578,152 @@ function verificarRespuesta(){
 
 // Initialize the game when the DOM is ready
 document.addEventListener("DOMContentLoaded", initializeGame);
+
+function DrawPlay(firstClickedCell, clickedCell){
+          
+        let row = firstClickedCell.row
+        let col = firstClickedCell.col
+        let selectedRow = clickedCell.row
+        let selectedCol = clickedCell.col
+
+        if (isAdjacent(firstClickedCell, clickedCell)) {
+            drawLine(firstClickedCell, clickedCell);
+            grafo.connectNodesByIndices(row,col,selectedRow,selectedCol);
+            grid[row][col]=1;
+            grid[selectedRow][selectedCol]=1;
+            console.log(grafo);
+
+            // Deselect the previously selected cell
+
+        } 
+
+}
+
+
+class Solver {
+    constructor(graph) {
+        this.graph = graph;
+        this.visited = new Set();
+    }
+
+    solve() {
+
+      let whiteCirclesAtEdge = this.graph.getWhiteCirclesAtEdge();
+      let blackCirclesAtEdge = this.graph.getBlackCirclesAtEdge();
+      let blackCirclesOneSpaceFromEdge = this.graph.getBlackCirclesOneSpaceFromEdge();
+      let threeOrMoreWhiteCirclesInLine = this.graph.getThreeOrMoreWhiteCirclesInLine();
+      let twoAdjacentWhiteCircles = this.graph.getTwoAdjacentBlackeCircles();
+      let blackCircleWithWhiteCorners = this.graph.getBlackCircleWithWhiteCorners();
+
+      console.log("White Circles at Edge:", whiteCirclesAtEdge);
+      this.drawWhiteEdge(whiteCirclesAtEdge);
+      console.log("Black Circles at Edge:", blackCirclesAtEdge);
+      console.log("Black Circles One Space from Edge:", blackCirclesOneSpaceFromEdge);
+      console.log("Three or More White Circles in Line:", threeOrMoreWhiteCirclesInLine);
+      console.log("Two Adjacent Black Circles:", twoAdjacentWhiteCircles);
+      console.log("Black Circle with White Corners:", blackCircleWithWhiteCorners);
+      
+
+
+    }
+
+    drawWhiteEdge(ListWitheEdge){
+      for(let node of ListWitheEdge){
+        let edge = this.graph.getEdge(node.row,node.col);
+        console.log(edge)
+        switch (edge) {
+          case "top":
+            let nodoDerecha = this.graph.getNode(node.row,node.col+1);
+            let nodoizquierda = this.graph.getNode(node.row,node.col-1);
+
+            DrawPlay(node,nodoDerecha);
+            DrawPlay(node,nodoizquierda);
+            
+            break;
+          case "right":
+
+            break;
+
+          case "left":
+
+            break;
+
+          case "bottom":
+
+            break;
+
+          default:
+            break;
+        }
+      }
+    }
+
+    dfs(node, parent) {
+        // Mark the current node as visited
+        this.visited.add(node);
+
+        // Get all possible neighbors (up, down, left, right)
+        const neighbors = [
+            node.vecinoarriba,
+            node.vecinoabajo,
+            node.vecinoderecha,
+            node.vecinoizquierda
+        ].filter(neighbor => neighbor && !this.visited.has(neighbor));
+
+        // Heuristic: Prioritize nodes with circles and follow rules
+        for (let neighbor of neighbors) {
+            if (this.isValidMove(node, neighbor, parent)) {
+                // Connect the nodes
+                this.graph.connectNodesByIndices(node.row, node.col, neighbor.row, neighbor.col);
+
+                // Recursively visit the neighbor
+                if (this.dfs(neighbor, node)) {
+                    return true;
+                }
+
+                // Backtrack: Disconnect the nodes
+                this.graph.deleteConnectionByIndices(node.row, node.col, neighbor.row, neighbor.col);
+            }
+        }
+
+        // Unmark the current node before backtracking
+        this.visited.delete(node);
+
+        return false;
+    }
+
+    isValidMove(node, neighbor, parent) {
+        // Check if the move is valid according to the Masyu rules
+        if (node.circleType === 'black') {
+            // Black circle: Must turn on the circle and go straight through the next and previous cells
+            if (parent) {
+                const straightLine = this.getStraightLine(parent, node, neighbor);
+                if (!straightLine) {
+                    return false;
+                }
+            }
+        } else if (node.circleType === 'white') {
+            // White circle: Must go straight through but turn in the previous or next cell
+            if (parent) {
+                const turns = this.getTurns(parent, node, neighbor);
+                if (!turns) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    getStraightLine(parent, node, neighbor) {
+        // Check if the nodes form a straight line
+        return (parent.row === node.row && node.row === neighbor.row) ||
+               (parent.col === node.col && node.col === neighbor.col);
+    }
+
+    getTurns(parent, node, neighbor) {
+        // Check if the path turns in the previous or next cell for white circles
+        return (parent.row !== node.row && neighbor.row !== node.row) ||
+               (parent.col !== node.col && neighbor.col !== node.col);
+    }
+}
 
