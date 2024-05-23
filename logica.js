@@ -229,6 +229,19 @@ class Graph {
 
         return adjacents;
     }
+
+    getAdjacentsall(row, col) {
+        const node = this.getNode(row, col);
+        if (!node) return [];
+
+        const adjacents = [];
+        adjacents.push(this.getNode(row,col+1));
+        adjacents.push(this.getNode(row,col-1));
+        adjacents.push(this.getNode(row+1,col));
+        adjacents.push(this.getNode(row-1,col));
+
+        return adjacents;
+    }
     
     getCorner(row, col) {
         if (row === 0 && col === 0) return 'top-left';
@@ -402,6 +415,36 @@ class Graph {
         return blackCirclesWithWhiteCorners;
     }
 
+    generateBlackCircleMoves() {
+        const jugadasPosiblesBlack=[]
+
+        for (let row = 0; row < this.gridSize; row++){
+            for (let col = 0; col < this.gridSize; col++){
+                const node = this.getNode(row,col);
+                if(node && node.circleType === 2){
+                    console.log("Este es el nodo que se busca",node);
+                    let res =this.getAdjacentsall(row,col)
+                    console.log("los resultados",res);
+                    //jugadasPosiblesBlack = generateMovesFromBlackCircle(node)
+                }
+            }
+        }
+    }
+
+    // generateMovesFromBlackCircle(blackCircle) {
+    //     const moves = [];
+
+    //     // Generar movimientos válidos desde el círculo negro actual
+        
+    //     // Aquí debes implementar la lógica para determinar qué movimientos son válidos
+    //     // Puedes considerar todas las combinaciones de líneas que pueden trazarse desde el círculo negro
+    //     // Asegúrate de respetar las reglas del juego Masyu, incluida la regla de intersección
+
+    //     // Por ejemplo, podrías considerar líneas en las cuatro direcciones (arriba, abajo, izquierda, derecha)
+    //     // y verificar si esas líneas son válidas y no violan la regla de intersección
+
+    //     return moves;
+    // }
 
 
 
@@ -640,6 +683,9 @@ class Solver {
       console.log("Three or More White Circles in Line:", threeOrMoreWhiteCirclesInLine);
       console.log("Two Adjacent Black Circles:", twoAdjacentWhiteCircles);
       console.log("Black Circle with White Corners:", blackCircleWithWhiteCorners);
+
+      let jugadasNegro = this.graph.generateBlackCircleMoves();
+      //console.log("jugadas negro", jugadasNegro);
       
 
 
