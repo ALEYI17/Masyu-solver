@@ -483,6 +483,9 @@ class Graph {
             lineThrough=this.checkLineThrough(node.vecinoabajo)
             console.log("line:",lineThrough);
             for(let a of adj){
+                if(a === null){
+                  continue;
+                }
                 console.log("la fila del adj es",a.row);
                 console.log("la col del adj es",a.col);
                 let nodetwo = null;
@@ -503,6 +506,9 @@ class Graph {
             console.log("line:",lineThrough);
 
             for(let a of adj){
+                if(a === null){
+                  continue;
+                } 
                 console.log("la fila del adj es",a.row);
                 console.log("la col del adj es",a.col);
                 let nodetwo = null;
@@ -522,6 +528,9 @@ class Graph {
             lineThrough=this.checkLineThrough(node.vecinoderecha);
             console.log("line:",lineThrough);
             for(let a of adj){
+                if(a === null){
+                  continue;
+                }
                 console.log("la fila del adj es",a.row);
                 console.log("la col del adj es",a.col);
                 let nodetwo = null;
