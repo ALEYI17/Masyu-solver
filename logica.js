@@ -203,6 +203,31 @@ class Graph {
 
     }
 
+    verifyWhite(node){
+      let CircleValid = true;
+      if(node.circleType == 1 ){
+        if(node.vecinoarriba && node.vecinoabajo){
+          if(node.vecinoarriba.vecinoderecha || node.vecinoarriba.vecinoizquierda || node.vecinoabajo.vecinoderecha ||  node.vecinoabajo.vecinoizquierda){
+            return CircleValid;
+          }else{
+
+            return false;
+
+          }
+        }else if(node.vecinoderecha && node.vecinoizquierda ){
+          if(node.vecinoderecha.vecinoabajo || node.vecinoderecha.vecinoarriba || node.vecinoizquierda.vecinoabajo ||  node.vecinoizquierda.vecinoarriba){
+            return CircleValid;
+          }else{
+            return false;
+          }
+
+        }else{
+          return false;
+        }
+
+      }
+    }
+
     verifyend() {
         // Iterate through each node to verify
         for (let node of this.nodes) {
@@ -558,6 +583,78 @@ class Graph {
         console.log("posibles a competar ");
         console.log(jugadasPosiblesWhite);
 
+    }
+
+    generateWhiteCircleMoves(){
+      const jugadasPosiblesWhite=[]
+      for (let row = 0; row < this.gridSize; row++){
+        for (let col = 0; col < this.gridSize; col++){
+          const node = this.getNode(row,col);
+          if(node && node.circleType === 1 && this.num_vecinos(node)  == 2){
+            console.log("nodos con lineThrough",node);
+            let posiblesJugadas = this.generateMovesFromWhiteCircle(node);
+            console.log("Jugadas para este nodo", posiblesJugadas);
+          }
+        }
+      }
+    }
+
+    generateMovesFromWhiteCircle(node){
+      let posiblesJugadas = []
+      //console.log("Se esta viendo en GMFWC",node);
+      if(!this.verifyWhite(node)){
+        console.log("Se pueden buscar jugadas en :", node);
+
+        if(node.vecinoabajo !== null && node.vecinoarriba !== null){
+          console.log("es vertical:",node);
+          let nodeArriba = node.vecinoarriba;
+          let nodeabajo = node.vecinoabajo;
+          let ArribaDerecha =  this.getNode(nodeArriba.row,nodeArriba.col +1)
+          let ArribaIzquierda =  this.getNode(nodeArriba.row,nodeArriba.col -1)
+          if(ArribaDerecha !== null){
+            posiblesJugadas.push({primero:nodeArriba,segundo:ArribaDerecha})
+          }
+          if(ArribaIzquierda !== null){
+            posiblesJugadas.push({primero:nodeArriba,segundo:ArribaIzquierda})
+          }
+
+          let AbajoDerecha = this.getNode(nodeabajo.row,nodeabajo.col+1)
+          let AbajoIzquierda = this.getNode(nodeabajo.row,nodeabajo.col-1)
+          if(AbajoDerecha !== null){
+            posiblesJugadas.push({primero:nodeabajo,segundo:AbajoDerecha})
+          }
+          if(AbajoIzquierda !== null){
+            posiblesJugadas.push({primero:nodeabajo,segundo:AbajoIzquierda})
+          }
+
+        }
+        else if(node.vecinoderecha !== null && node.vecinoizquierda !== null){
+          console.log("es horizontal:",node);
+          let NodeDerecha = node.vecinoderecha;
+          let NodeIzquierda = node.vecinoizquierda;
+
+          let DerechaArriba = this.getNode(NodeDerecha.row-1,NodeDerecha.col);
+          let DerechaAbajo = this.getNode(NodeDerecha.row+1,NodeDerecha.col);
+
+          if(DerechaArriba !== null){
+            posiblesJugadas.push({primero:NodeDerecha,segundo:DerechaArriba})
+          }
+          if(DerechaAbajo !== null){
+            posiblesJugadas.push({primero:NodeDerecha,segundo:DerechaAbajo})
+          }
+
+          let IzquierdaArriba = this.getNode(NodeIzquierda.row-1,NodeIzquierda.col);
+          let IzquierdaAbajo = this.getNode(NodeIzquierda.row+1,NodeIzquierda.col);
+
+          if(IzquierdaArriba !== null){
+            posiblesJugadas.push({primero:NodeIzquierda,segundo:IzquierdaArriba})
+          }
+          if(IzquierdaAbajo !== null){
+            posiblesJugadas.push({primero:NodeIzquierda,segundo:IzquierdaAbajo})
+          }
+        }
+      }
+      return posiblesJugadas;
     }
 
     num_vecinos(node){
@@ -933,9 +1030,11 @@ class Solver {
       this.drawAdjacentBlack(twoAdjacentWhiteCircles);
       console.log("Black Circle with White Corners:", blackCircleWithWhiteCorners);
 
-      let jugadasNegro = this.graph.generateBlackCircleMoves();
+      this.graph.generateBlackCircleMoves();
 
       this.graph.CompleteWhiteCircle();
+
+      this.graph.generateWhiteCircleMoves();
       //console.log("jugadas negro", jugadasNegro);
       
 
