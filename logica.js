@@ -639,7 +639,9 @@ class Solver {
       console.log("Black Circles One Space from Edge:", blackCirclesOneSpaceFromEdge);
       this.drawBlackOneSpace(blackCirclesOneSpaceFromEdge);
       console.log("Three or More White Circles in Line:", threeOrMoreWhiteCirclesInLine);
+      this.drawWhiteLine(threeOrMoreWhiteCirclesInLine);
       console.log("Two Adjacent Black Circles:", twoAdjacentWhiteCircles);
+      this.drawAdjacentBlack(twoAdjacentWhiteCircles);
       console.log("Black Circle with White Corners:", blackCircleWithWhiteCorners);
       
 
@@ -718,7 +720,7 @@ class Solver {
         switch (edge) {
             case "left":
               DrawPlay(node,nodoDerecha);
-              DrawPlay(node,nodeDerechaDerecha);
+              DrawPlay(nodoDerecha,nodeDerechaDerecha);
               if (corner === "top-left"){
                 DrawPlay(node,nodoabajo);
                 DrawPlay(nodoabajo,nodoAbajoAbajo);
@@ -837,7 +839,7 @@ class Solver {
           case "one-space from left":
             
               DrawPlay(node,nodoDerecha);
-              DrawPlay(nodoarriba,nodeDerechaDerecha);
+              DrawPlay(nodoDerecha,nodeDerechaDerecha);
               if (corner === "bottom-left"){
                 DrawPlay(node,nodoarriba);
                 DrawPlay(nodoarriba,nodeArribaArriba);
@@ -869,9 +871,107 @@ class Solver {
 
       }
 
+    }//end one-space
 
+
+  drawWhiteLine(ListWhiteLine){
+
+    for(let nodesClass of ListWhiteLine){
+      console.log(nodesClass);
+      let nodes = nodesClass.nodes
+      let direction = nodesClass.direction
+      for(let node of nodes){
+        let nodoDerecha = this.graph.getNode(node.row,node.col+1);
+        let nodoizquierda = this.graph.getNode(node.row,node.col-1);
+        let nodoarriba = this.graph.getNode(node.row-1,node.col);
+        let nodoabajo = this.graph.getNode(node.row+1,node.col);
+        let nodeDerechaDerecha;
+        let nodeIzquierdaIzquierda
+        let nodeArribaArriba
+        let nodoAbajoAbajo
+        if(nodoDerecha !== null){
+          nodeDerechaDerecha = this.graph.getNode(nodoDerecha.row,nodoDerecha.col+1);
+        }
+        if(nodoizquierda !== null){
+          nodeIzquierdaIzquierda = this.graph.getNode(nodoizquierda.row,nodoizquierda.col-1);
+        }
+        if(nodoarriba !== null){
+         nodeArribaArriba = this.graph.getNode(nodoarriba.row-1,nodoarriba.col);
+        }
+        if(nodoabajo !== null){
+          nodoAbajoAbajo = this.graph.getNode(nodoabajo.row+1,nodoabajo.col);
+        }
+
+        switch (direction) {
+          case "horizontal":
+              DrawPlay(node,nodoarriba);
+              DrawPlay(node,nodoabajo);
+            break;
+          case "vertical":
+            DrawPlay(node,nodoizquierda);
+            DrawPlay(node,nodoDerecha);
+            break;
+
+          default:
+            break;
+        }
+      }
+      
+    }
+
+  }//end drawWhiteLine
+
+
+  drawAdjacentBlack(twoAdjacentWhiteCircles){
+    
+    for(let nodesClass of twoAdjacentWhiteCircles){
+      let nodes = nodesClass.nodes
+      let direction = nodesClass.direction
+      let node = null
+      switch (direction) {
+        case "horizontal":
+
+          node = nodes[0]
+          let nodoizquierda = this.graph.getNode(node.row,node.col-1);
+          let nodeIzquierdaIzquierda = this.graph.getNode(nodoizquierda.row,nodoizquierda.col-1);
+          DrawPlay(node,nodoizquierda);
+          DrawPlay(nodoizquierda,nodeIzquierdaIzquierda);
+          node = nodes[1]
+          let nodoDerecha = this.graph.getNode(node.row,node.col+1);
+          let nodeDerechaDerecha = this.graph.getNode(nodoDerecha.row,nodoDerecha.col+1);
+          DrawPlay(node,nodoDerecha);
+          DrawPlay(nodoDerecha,nodeDerechaDerecha);
+
+          break;
+        case "vertical":
+          node = nodes[0]
+          let nodoarriba = this.graph.getNode(node.row-1,node.col);
+          let nodeArribaArriba = this.graph.getNode(nodoarriba.row-1,nodoarriba.col);
+          DrawPlay(node,nodoarriba);
+          DrawPlay(nodoarriba,nodeArribaArriba);
+          node = nodes[1]
+          let nodoabajo = this.graph.getNode(node.row+1,node.col);
+          let nodoAbajoAbajo = this.graph.getNode(nodoabajo.row+1,nodoabajo.col);
+          DrawPlay(node,nodoabajo);
+          DrawPlay(nodoabajo,nodoAbajoAbajo);
+          break;
+
+        default:
+          break;
+      }
+
+
+      
 
     }
+
+
+  }//end adjacentBlack 
+
+
+
+
+
     dfs(node, parent) {
         // Mark the current node as visited
         this.visited.add(node);
