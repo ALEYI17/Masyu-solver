@@ -453,7 +453,7 @@ class Graph {
                         console.log("Este es el nodo que se busca",node);
                         let jugadasPosiblesBlack = this.generateMovesFromBlackCircle(row,col,node)
                         console.log(jugadasPosiblesBlack);
-                        let filtro_jugadas = this.checkJugada(node,jugadasPosiblesBlack)
+                        let filtro_jugadas = this.checkJugadaBlack(node,jugadasPosiblesBlack)
                         console.log(filtro_jugadas);
                         if(filtro_jugadas.length === 1){
                             let jugar = filtro_jugadas.pop();
@@ -594,6 +594,9 @@ class Graph {
             console.log("nodos con lineThrough",node);
             let posiblesJugadas = this.generateMovesFromWhiteCircle(node);
             console.log("Jugadas para este nodo", posiblesJugadas);
+            let filtroJugadas= this.checkJugadaWhite(node,posiblesJugadas);
+            console.log(filtroJugadas);
+
           }
         }
       }
@@ -736,7 +739,7 @@ class Graph {
         }
     }
 
-    checkJugada(node,jugadasPosiblesBlack){
+    checkJugadaBlack(node,jugadasPosiblesBlack){
         let verificate_play=[];
         for(let jugadas of jugadasPosiblesBlack){
             console.log("va a jugar este:",jugadas);
@@ -753,7 +756,7 @@ class Graph {
                 conec2 = true;
             }
 
-            if(this.num_vecinos(node)>=3 || this.num_vecinos(nodesource)>=3 || this.num_vecinos(nodedest)>=3){
+            if(this.ifBranch(node) || this.ifBranch(nodesource) || this.ifBranch(nodedest)){
                 console.log("jugada invalida:", jugadas);
                 if(conec1==true){
                     this.deleteConnectionByIndices(node.row,node.col,nodesource.row,nodesource.col);
@@ -779,6 +782,37 @@ class Graph {
         
     }
 
+    checkJugadaWhite(node, jugadaDisponible){
+      let verificate_play=[];
+      for(let jugada of jugadaDisponible){
+        console.log("va a jugar este:",jugada);
+        let nodeSource = jugada.primero;
+        let nodeDest = jugada.segundo;
+        let conec1 = false;
+        if(!this.isConnectionMade(nodeSource.row,nodeSource.col,nodeDest.row,nodeDest.col)){
+          this.connectNodesByIndices(nodeSource.row,nodeSource.col,nodeDest.row,nodeDest.col);
+          conec1 = true;
+        }
+
+        if(this.ifBranch(nodeSource) || this.ifBranch(nodeDest)){
+          console.log("jugada invalida:", jugada);
+          if(conec1==true){
+            this.deleteConnectionByIndices(nodeSource.row,nodeSource.col,nodeDest.row,nodeDest.col);
+          }
+        }
+        else{
+          verificate_play.push(jugada)
+          if(conec1==true){
+            this.deleteConnectionByIndices(nodeSource.row,nodeSource.col,nodeDest.row,nodeDest.col);
+          }
+
+        }
+
+      }
+
+      return verificate_play;
+    }
+
     isConnectionMade(row1, col1, row2, col2) {
         const node1 = this.getNode(row1, col1);
         const node2 = this.getNode(row2, col2);
@@ -787,6 +821,13 @@ class Graph {
             return (node1.vecinoarriba === node2 || node1.vecinoabajo === node2 || 
                     node1.vecinoderecha === node2 || node1.vecinoizquierda === node2);
         }
+        return false;
+    }
+
+    ifBranch(node){
+      if(this.num_vecinos(node)>=3){
+        return true;
+      }
         return false;
     }
 
