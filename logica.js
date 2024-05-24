@@ -428,6 +428,15 @@ class Graph {
                         console.log("Este es el nodo que se busca",node);
                         let jugadasPosiblesBlack = this.generateMovesFromBlackCircle(row,col,node)
                         console.log(jugadasPosiblesBlack);
+                        let filtro_jugadas = this.checkJugada(node,jugadasPosiblesBlack)
+                        console.log(filtro_jugadas);
+                        if(filtro_jugadas.length === 1){
+                            let jugar = filtro_jugadas.pop();
+                            let nodesource = jugar.primero
+                            let nodedest = jugar.segundo
+                            DrawPlay(node,nodesource);
+                            DrawPlay(nodesource,nodedest);
+                        }
                     }
                     
                 }
@@ -507,6 +516,9 @@ class Graph {
             lineThrough=this.checkLineThrough(node.vecinoizquierda);
             console.log("line:",lineThrough);
             for(let a of adj){
+                if(a === null){
+                    continue;
+                }
                 console.log("la fila del adj es",a.row);
                 console.log("la col del adj es",a.col);
                 let nodetwo = null;
@@ -593,6 +605,33 @@ class Graph {
                 node.ninetydegree = true;
             }            
         }
+    }
+
+    checkJugada(node,jugadasPosiblesBlack){
+        let verificate_play=[];
+        for(let jugadas of jugadasPosiblesBlack){
+            console.log("va a jugar este:",jugadas);
+            let nodesource = jugadas.primero
+            let nodedest = jugadas.segundo
+            this.connectNodesByIndices(node.row,node.col,nodesource.row,nodesource.col);
+            this.connectNodesByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
+            // DrawPlay(node,nodesource)
+            // DrawPlay(nodesource,nodedest);
+
+            if(this.num_vecinos(node)>=3 || this.num_vecinos(nodesource)>=3 || this.num_vecinos(nodedest)>=3){
+                console.log("jugada invalida:", jugadas);
+                this.deleteConnectionByIndices(node.row,node.col,nodesource.row,nodesource.col);
+                this.deleteConnectionByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
+            }else{
+                verificate_play.push(jugadas);
+                this.deleteConnectionByIndices(node.row,node.col,nodesource.row,nodesource.col);
+                this.deleteConnectionByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
+            }
+
+        }
+
+        return verificate_play;
+        
     }
 
 
