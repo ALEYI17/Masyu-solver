@@ -537,16 +537,22 @@ class Graph {
             }
         }
 
-        // Generar movimientos válidos desde el círculo negro actual
-        
-        // Aquí debes implementar la lógica para determinar qué movimientos son válidos
-        // Puedes considerar todas las combinaciones de líneas que pueden trazarse desde el círculo negro
-        // Asegúrate de respetar las reglas del juego Masyu, incluida la regla de intersección
-
-        // Por ejemplo, podrías considerar líneas en las cuatro direcciones (arriba, abajo, izquierda, derecha)
-        // y verificar si esas líneas son válidas y no violan la regla de intersección
-
         return moves;
+    }
+
+    CompleteWhiteCircle(){
+        const jugadasPosiblesBlack=[]
+        for (let row = 0; row < this.gridSize; row++){
+            for (let col = 0; col < this.gridSize; col++){
+                const node = this.getNode(row,col);
+                if(node && node.circleType === 1 && this.num_vecinos(node)  == 1){
+                    jugadasPosiblesBlack.push(node)
+                }
+            }
+        }
+        console.log("posibles a competar ");
+        console.log(jugadasPosiblesBlack);
+
     }
 
     num_vecinos(node){
@@ -613,25 +619,52 @@ class Graph {
             console.log("va a jugar este:",jugadas);
             let nodesource = jugadas.primero
             let nodedest = jugadas.segundo
-            this.connectNodesByIndices(node.row,node.col,nodesource.row,nodesource.col);
-            this.connectNodesByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
-            // DrawPlay(node,nodesource)
-            // DrawPlay(nodesource,nodedest);
+            let conec1 = false;
+            let conec2 = false;
+            if(!this.isConnectionMade(node.row,node.col,nodesource.row,nodesource.col)){
+                this.connectNodesByIndices(node.row,node.col,nodesource.row,nodesource.col);
+                conec1 = true;
+            }
+            if(!this.isConnectionMade(nodesource.row,nodesource.col,nodedest.row,nodedest.col)){
+                this.connectNodesByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
+                conec2 = true;
+            }
 
             if(this.num_vecinos(node)>=3 || this.num_vecinos(nodesource)>=3 || this.num_vecinos(nodedest)>=3){
                 console.log("jugada invalida:", jugadas);
-                this.deleteConnectionByIndices(node.row,node.col,nodesource.row,nodesource.col);
-                this.deleteConnectionByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
+                if(conec1==true){
+                    this.deleteConnectionByIndices(node.row,node.col,nodesource.row,nodesource.col);
+                }
+                if(conec2 == true){
+                    this.deleteConnectionByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
+                }
+                
             }else{
                 verificate_play.push(jugadas);
-                this.deleteConnectionByIndices(node.row,node.col,nodesource.row,nodesource.col);
-                this.deleteConnectionByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
+                if(conec1==true){
+                    this.deleteConnectionByIndices(node.row,node.col,nodesource.row,nodesource.col);
+                }
+                if(conec2 == true){
+                    this.deleteConnectionByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
+                }
+                
             }
 
         }
 
         return verificate_play;
         
+    }
+
+    isConnectionMade(row1, col1, row2, col2) {
+        const node1 = this.getNode(row1, col1);
+        const node2 = this.getNode(row2, col2);
+
+        if (node1 && node2) {
+            return (node1.vecinoarriba === node2 || node1.vecinoabajo === node2 || 
+                    node1.vecinoderecha === node2 || node1.vecinoizquierda === node2);
+        }
+        return false;
     }
 
 
@@ -875,6 +908,8 @@ class Solver {
       console.log("Black Circle with White Corners:", blackCircleWithWhiteCorners);
 
       let jugadasNegro = this.graph.generateBlackCircleMoves();
+
+      this.graph.CompleteWhiteCircle();
       //console.log("jugadas negro", jugadasNegro);
       
 
