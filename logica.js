@@ -541,17 +541,22 @@ class Graph {
     }
 
     CompleteWhiteCircle(){
-        const jugadasPosiblesBlack=[]
+        const jugadasPosiblesWhite=[]
         for (let row = 0; row < this.gridSize; row++){
             for (let col = 0; col < this.gridSize; col++){
                 const node = this.getNode(row,col);
                 if(node && node.circleType === 1 && this.num_vecinos(node)  == 1){
-                    jugadasPosiblesBlack.push(node)
+                  let jugada = this.completeLineThrough(node)
+                  let nodesource = jugada.primero
+                  let nodedest = jugada.segundo
+                  DrawPlay(nodesource,nodedest);
+                  node.lineThrough=true
+                  jugadasPosiblesWhite.push(jugada)
                 }
             }
         }
         console.log("posibles a competar ");
-        console.log(jugadasPosiblesBlack);
+        console.log(jugadasPosiblesWhite);
 
     }
 
@@ -587,6 +592,27 @@ class Graph {
         }
 
         return false;
+    }
+
+    completeLineThrough(node){
+      let jugada = {}
+      let nodedest= null;
+      if (node.vecinoarriba !== null){
+        nodedest = this.getNode(node.row+1,node.col);
+        return jugada={primero:node, segundo:nodedest} 
+      }
+      else if(node.vecinoabajo !== null){
+        nodedest = this.getNode(node.row-1,node.col);
+        return jugada={primero:node, segundo:nodedest}
+      }
+      else if(node.vecinoizquierda !== null){
+        nodedest = this.getNode(node.row,node.col+1);
+        return jugada={primero:node, segundo:nodedest}
+      }
+      else if(node.vecinoderecha !== null){
+        nodedest = this.getNode(node.row,node.col-1);
+        return jugada={primero:node, segundo:nodedest}
+      }
     }
 
     setninetydegree(node){
