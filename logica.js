@@ -16,7 +16,8 @@ class Node {
         this.vecinoarriba=null
         this.vecinoabajo = null
         this.vecinoderecha = null
-        this.vecinoizquierda = null// Array of neighboring nodes
+        this.vecinoizquierda = null
+        this.deadSpot = false 
     }
 }
 
@@ -824,12 +825,76 @@ class Graph {
         return false;
     }
 
+
     ifBranch(node){
       if(this.num_vecinos(node)>=3){
         return true;
       }
         return false;
     }
+
+  findDeadSpots() {
+      const deadSpots = [];
+
+      for (let row = 0; row < this.gridSize; row++) {
+          for (let col = 0; col < this.gridSize; col++) {
+              const node = this.getNode(row, col);
+              if (!node || node.circleType !== null) continue;
+              if (this.num_vecinos(node) != 0) continue ;
+              let blockedDirections = 0;
+              let adjacents = this.getAdjacentsall(row,col);
+              // Check each direction
+              const directions = [
+                  { vecino: adjacents[3], row: row - 1, col: col },//vecino arriba
+                  { vecino: adjacents[2], row: row + 1, col: col },// vecino abajo
+                  { vecino: adjacents[1], row: row, col: col - 1 },//vecino izquierda
+                  { vecino: adjacents[0], row: row, col: col + 1 }//vecino derecha
+              ];
+
+              directions.forEach(dir => {
+                  const neighbor = this.getNode(dir.row, dir.col);
+                  if (!neighbor || this.isDeadSpot(dir.row, dir.col) || this.num_vecinos(neighbor)===2 || neighbor.deadSpot === true) {
+                      blockedDirections++;
+                  }
+              });
+
+              if (blockedDirections >= 3) {
+                  node.deadSpot= true
+                  deadSpots.push(node);
+
+              }
+          }
+      }
+
+      return deadSpots;
+  }
+
+  isDeadSpot(row, col) {
+      const node = this.getNode(row, col);
+      if (!node || node.circleType !== null) return false;
+      if (this.num_vecinos(node) != 0) return false ;
+      if (node.deadSpot === true) return true;
+      let blockedDirections = 0;
+      let adjacents = this.getAdjacentsall(row,col);
+      // Check each direction
+      const directions = [
+          { vecino: adjacents[3], row: row - 1, col: col },//vecino arriba
+          { vecino: adjacents[2], row: row + 1, col: col },// vecino abajo
+          { vecino: adjacents[1], row: row, col: col - 1 },//vecino izquierda
+          { vecino: adjacents[0], row: row, col: col + 1 }//vecino derecha
+      ];
+
+      directions.forEach(dir => {
+          const neighbor = this.getNode(dir.row, dir.col);
+          if (!neighbor ||  this.num_vecinos(neighbor)===2 || neighbor.deadSpot === true) {
+              blockedDirections++;
+          }
+      });
+
+      return blockedDirections >= 3;
+  }
+
+
 
 
 
@@ -1071,13 +1136,21 @@ class Solver {
       this.drawAdjacentBlack(twoAdjacentWhiteCircles);
       console.log("Black Circle with White Corners:", blackCircleWithWhiteCorners);
 
+      let dead = this.graph.findDeadSpots();
+      console.log("dead", dead);
       this.graph.generateBlackCircleMoves();
+      dead = this.graph.findDeadSpots();
+      console.log("dead", dead);
 
       this.graph.CompleteWhiteCircle();
+      dead = this.graph.findDeadSpots();
+      console.log("dead", dead);
 
       this.graph.generateWhiteCircleMoves();
       //console.log("jugadas negro", jugadasNegro);
-      
+      dead = this.graph.findDeadSpots();
+      console.log("dead", dead);
+   
 
 
     }
