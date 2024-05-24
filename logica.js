@@ -422,29 +422,86 @@ class Graph {
             for (let col = 0; col < this.gridSize; col++){
                 const node = this.getNode(row,col);
                 if(node && node.circleType === 2){
-                    console.log("Este es el nodo que se busca",node);
-                    let res =this.getAdjacentsall(row,col)
-                    console.log("los resultados",res);
-                    //jugadasPosiblesBlack = generateMovesFromBlackCircle(node)
+                    //console.log("Este es el nodo que se busca",node);
+                    let jugadasPosiblesBlack = this.generateMovesFromBlackCircle(row,col,node)
                 }
             }
         }
     }
 
-    // generateMovesFromBlackCircle(blackCircle) {
-    //     const moves = [];
+    generateMovesFromBlackCircle(row,col,node) {
+        let moves = [];
+        let adj = this.getAdjacentsall(row,col);
+        let tot_vec = this.num_vecinos(node);
+        console.log("para",row,col);
+        console.log("Numero total de vecinos:",tot_vec);
+        let lineThrough = false
+        if(node.vecinoabajo !== null){
+            console.log("vecino abajo");
+            lineThrough=this.checkLineThrough(node.vecinoabajo)
+            console.log("line:",lineThrough);
+        }
+        if(node.vecinoarriba !== null){
+            console.log("vecino arriba");
+            lineThrough=this.checkLineThrough(node.vecinoarriba);
+            console.log("line:",lineThrough);
+        }
+        if(node.vecinoderecha !== null){
+            console.log("vecino derecha");
+            lineThrough=this.checkLineThrough(node.vecinoderecha);
+            console.log("line:",lineThrough);
+        }
+        if(node.vecinoizquierda !== null){
+            console.log("vecino izquierda");
+            lineThrough=this.checkLineThrough(node.vecinoizquierda);
+            console.log("line:",lineThrough);
+        }
 
-    //     // Generar movimientos válidos desde el círculo negro actual
+        // Generar movimientos válidos desde el círculo negro actual
         
-    //     // Aquí debes implementar la lógica para determinar qué movimientos son válidos
-    //     // Puedes considerar todas las combinaciones de líneas que pueden trazarse desde el círculo negro
-    //     // Asegúrate de respetar las reglas del juego Masyu, incluida la regla de intersección
+        // Aquí debes implementar la lógica para determinar qué movimientos son válidos
+        // Puedes considerar todas las combinaciones de líneas que pueden trazarse desde el círculo negro
+        // Asegúrate de respetar las reglas del juego Masyu, incluida la regla de intersección
 
-    //     // Por ejemplo, podrías considerar líneas en las cuatro direcciones (arriba, abajo, izquierda, derecha)
-    //     // y verificar si esas líneas son válidas y no violan la regla de intersección
+        // Por ejemplo, podrías considerar líneas en las cuatro direcciones (arriba, abajo, izquierda, derecha)
+        // y verificar si esas líneas son válidas y no violan la regla de intersección
 
-    //     return moves;
-    // }
+        return moves;
+    }
+
+    num_vecinos(node){
+        let sum_vem = 0;
+
+        if(node.vecinoabajo !== null){
+            sum_vem = sum_vem +1;
+        }
+        if(node.vecinoarriba !== null){
+            sum_vem = sum_vem +1;
+        }
+        if(node.vecinoderecha !== null){
+            sum_vem = sum_vem +1;
+        }
+        if(node.vecinoizquierda !== null){
+            sum_vem = sum_vem +1;
+        }
+
+        return sum_vem;
+    }
+
+    checkLineThrough(node){
+        
+
+        if(node.vecinoabajo !== null && node.vecinoarriba !== null){
+            node.lineThrough= true;
+            return true;
+        }
+        if(node.vecinoderecha !== null && node.vecinoizquierda !== null){
+            node.lineThrough= true;
+            return true
+        }
+
+        return false;
+    }
 
 
 
