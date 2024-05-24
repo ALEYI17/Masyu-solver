@@ -424,8 +424,12 @@ class Graph {
                 const node = this.getNode(row,col);
                 if(node && node.circleType === 2){
                     this.setninetydegree(node)
-                    console.log("Este es el nodo que se busca",node);
-                    let jugadasPosiblesBlack = this.generateMovesFromBlackCircle(row,col,node)
+                    if (node.ninetydegree == false){
+                        console.log("Este es el nodo que se busca",node);
+                        let jugadasPosiblesBlack = this.generateMovesFromBlackCircle(row,col,node)
+                        console.log(jugadasPosiblesBlack);
+                    }
+                    
                 }
             }
         }
@@ -433,8 +437,9 @@ class Graph {
 
     generateMovesFromBlackCircle(row,col,node) {
         let moves = [];
-        let adj = this.getAdjacentsall(row,col);
         let tot_vec = this.num_vecinos(node);
+        let adj = this.getAdjacentsall(row,col);
+        console.log("sus adjs son:",adj);
         console.log("para",row,col);
         console.log("Numero total de vecinos:",tot_vec);
         let lineThrough = false
@@ -442,21 +447,82 @@ class Graph {
             console.log("vecino abajo");
             lineThrough=this.checkLineThrough(node.vecinoabajo)
             console.log("line:",lineThrough);
+            for(let a of adj){
+                console.log("la fila del adj es",a.row);
+                console.log("la col del adj es",a.col);
+                let nodetwo = null;
+                if(a.col === node.col && a.row === node.row +1 ){
+                    
+                    nodetwo = this.getNode(a.row+1,a.col);
+                    moves.push({primero:a,segundo:nodetwo})
+                }
+                else if(a.col === node.col && a.row === node.row -1){
+                    nodetwo = this.getNode(a.row-1,a.col);
+                    moves.push({primero:a,segundo:nodetwo})
+                }
+            }
         }
         if(node.vecinoarriba !== null){
             console.log("vecino arriba");
             lineThrough=this.checkLineThrough(node.vecinoarriba);
             console.log("line:",lineThrough);
+
+            for(let a of adj){
+                console.log("la fila del adj es",a.row);
+                console.log("la col del adj es",a.col);
+                let nodetwo = null;
+                if(a.row === node.row && a.col === node.col +1 ){
+                    
+                    nodetwo = this.getNode(a.row,a.col+1);
+                    moves.push({primero:a,segundo:nodetwo})
+                }
+                else if(a.row === node.row && a.col === node.col -1){
+                    nodetwo = this.getNode(a.row,a.col-1);
+                    moves.push({primero:a,segundo:nodetwo})
+                }
+            }
         }
         if(node.vecinoderecha !== null){
             console.log("vecino derecha");
             lineThrough=this.checkLineThrough(node.vecinoderecha);
             console.log("line:",lineThrough);
+            for(let a of adj){
+                console.log("la fila del adj es",a.row);
+                console.log("la col del adj es",a.col);
+                let nodetwo = null;
+                if(a.col === node.col && a.row === node.row +1  ){
+
+                    nodetwo = this.getNode(a.row+1,a.col);
+                    moves.push({primero:a,segundo:nodetwo})
+                }
+                else if(a.col === node.col && a.row === node.row -1   ){
+                    
+                    nodetwo = this.getNode(a.row-1,a.col);
+                    moves.push({primero:a,segundo:nodetwo})
+                }
+            }
         }
         if(node.vecinoizquierda !== null){
             console.log("vecino izquierda");
             lineThrough=this.checkLineThrough(node.vecinoizquierda);
             console.log("line:",lineThrough);
+            for(let a of adj){
+                console.log("la fila del adj es",a.row);
+                console.log("la col del adj es",a.col);
+                let nodetwo = null;
+                if(a.col === node.col && a.row === node.row +1  ){
+
+                    nodetwo = this.getNode(a.row+1,a.col);
+                    moves.push({primero:a,segundo:nodetwo})
+                }
+                else if(a.col === node.col && a.row === node.row -1   ){
+                    
+                    nodetwo = this.getNode(a.row-1,a.col);
+                    moves.push({primero:a,segundo:nodetwo})
+                }
+                
+                
+            }
         }
 
         // Generar movimientos válidos desde el círculo negro actual
