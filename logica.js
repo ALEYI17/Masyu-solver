@@ -12,6 +12,7 @@ class Node {
         this.col = col;
         this.circleType = null; // 'black', 'white', or null if no circle
         this.lineThrough = false; // Indicates if a line passes through this node
+        this.ninetydegree=false;
         this.vecinoarriba=null
         this.vecinoabajo = null
         this.vecinoderecha = null
@@ -422,7 +423,8 @@ class Graph {
             for (let col = 0; col < this.gridSize; col++){
                 const node = this.getNode(row,col);
                 if(node && node.circleType === 2){
-                    //console.log("Este es el nodo que se busca",node);
+                    this.setninetydegree(node)
+                    console.log("Este es el nodo que se busca",node);
                     let jugadasPosiblesBlack = this.generateMovesFromBlackCircle(row,col,node)
                 }
             }
@@ -503,6 +505,29 @@ class Graph {
         return false;
     }
 
+    setninetydegree(node){
+
+        if(node.vecinoabajo !== null ){
+            if(node.vecinoderecha!==null || node.vecinoizquierda !== null){
+                node.ninetydegree = true;
+            }            
+        }
+        if(node.vecinoarriba !== null ){
+            if(node.vecinoderecha!==null || node.vecinoizquierda !== null){
+                node.ninetydegree = true;
+            }            
+        }
+        if(node.vecinoderecha !== null ){
+            if(node.vecinoarriba!==null || node.vecinoabajo !== null){
+                node.ninetydegree = true;
+            }            
+        }
+        if(node.vecinoizquierda !== null ){
+            if(node.vecinoarriba!==null || node.vecinoabajo !== null){
+                node.ninetydegree = true;
+            }            
+        }
+    }
 
 
 
