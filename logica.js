@@ -597,6 +597,12 @@ class Graph {
             console.log("Jugadas para este nodo", posiblesJugadas);
             let filtroJugadas= this.checkJugadaWhite(node,posiblesJugadas);
             console.log(filtroJugadas);
+            if (filtroJugadas.length ===1){
+              let jugar = filtroJugadas.pop();
+              let nodesource = jugar.primero
+              let nodedest = jugar.segundo
+              DrawPlay(nodesource,nodedest);
+            }
 
           }
         }
@@ -741,6 +747,7 @@ class Graph {
     }
 
     checkJugadaBlack(node,jugadasPosiblesBlack){
+        this.findDeadSpots()
         let verificate_play=[];
         for(let jugadas of jugadasPosiblesBlack){
             console.log("va a jugar este:",jugadas);
@@ -757,7 +764,7 @@ class Graph {
                 conec2 = true;
             }
 
-            if(this.ifBranch(node) || this.ifBranch(nodesource) || this.ifBranch(nodedest)){
+            if(this.ifBranch(node) || this.ifBranch(nodesource) || this.ifBranch(nodedest)|| nodesource.deadSpot == true || nodedest.deadSpot == true){
                 console.log("jugada invalida:", jugadas);
                 if(conec1==true){
                     this.deleteConnectionByIndices(node.row,node.col,nodesource.row,nodesource.col);
@@ -784,6 +791,7 @@ class Graph {
     }
 
     checkJugadaWhite(node, jugadaDisponible){
+      this.findDeadSpots()
       let verificate_play=[];
       for(let jugada of jugadaDisponible){
         console.log("va a jugar este:",jugada);
@@ -795,7 +803,7 @@ class Graph {
           conec1 = true;
         }
 
-        if(this.ifBranch(nodeSource) || this.ifBranch(nodeDest)){
+        if(this.ifBranch(nodeSource) || this.ifBranch(nodeDest) || nodeSource.deadSpot == true || nodeDest.deadSpot == true){
           console.log("jugada invalida:", jugada);
           if(conec1==true){
             this.deleteConnectionByIndices(nodeSource.row,nodeSource.col,nodeDest.row,nodeDest.col);
@@ -808,6 +816,7 @@ class Graph {
           }
 
         }
+
 
       }
 
