@@ -457,7 +457,7 @@ class Graph {
                         console.log(jugadasPosiblesBlack);
                         let filtro_jugadas = this.checkJugadaBlack(node,jugadasPosiblesBlack)
                         console.log(filtro_jugadas);
-                        if(filtro_jugadas.length === 1){
+                        if(filtro_jugadas.length === 1 ){
                             let jugar = filtro_jugadas.pop();
                             let nodesource = jugar.primero
                             let nodedest = jugar.segundo
@@ -492,13 +492,13 @@ class Graph {
                 console.log("la fila del adj es",a.row);
                 console.log("la col del adj es",a.col);
                 let nodetwo = null;
-                if(a.col === node.col && a.row === node.row +1 ){
+                if(a.col === node.col+1 && a.row === node.row  ){
                     
-                    nodetwo = this.getNode(a.row+1,a.col);
+                    nodetwo = this.getNode(a.row,a.col+1);
                     moves.push({primero:a,segundo:nodetwo})
                 }
-                else if(a.col === node.col && a.row === node.row -1){
-                    nodetwo = this.getNode(a.row-1,a.col);
+                else if(a.col === node.col-1 && a.row === node.row ){
+                    nodetwo = this.getNode(a.row,a.col-1);
                     moves.push({primero:a,segundo:nodetwo})
                 }
             }
@@ -820,21 +820,24 @@ class Graph {
                 conec2 = true;
             }
             
-            if(this.ifBranch(node) || this.ifBranch(nodesource) || this.ifBranch(nodedest)|| nodesource.deadSpot == true || nodedest.deadSpot == true || this.verifyInvalidLoop(node)===true){
+            if(this.ifBranch(node) || this.ifBranch(nodesource) || this.ifBranch(nodedest)|| nodesource.deadSpot === true || nodedest.deadSpot === true || this.verifyInvalidLoop(node)===true){
                 console.log("jugada invalida:", jugadas);
-                if(conec1==true){
+                if(conec1===true){
                     this.deleteConnectionByIndices(node.row,node.col,nodesource.row,nodesource.col);
                 }
-                if(conec2 == true){
+                if(conec2 === true){
                     this.deleteConnectionByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
                 }
                 
             }else{
-                verificate_play.push(jugadas);
-                if(conec1==true){
+
+                  verificate_play.push(jugadas);
+                
+                
+                if(conec1===true){
                     this.deleteConnectionByIndices(node.row,node.col,nodesource.row,nodesource.col);
                 }
-                if(conec2 == true){
+                if(conec2 === true){
                     this.deleteConnectionByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
                 }
                 
@@ -995,11 +998,129 @@ class Graph {
     }
     console.log("Ciclo false");
     return false;
-}
+  }
+
+  GetIsland(){
+    let Islas = []
+
+    for (let nod of this.nodes){
+
+      if(this.num_vecinos(nod) === 0 && (nod.circleType == 1 || nod.circleType == 2)){
+        Islas.push(nod);
+        
+      }
 
 
+    } 
+
+    return Islas;
+
+  }
+  
 
 
+  conjeturaHorizontalBlanco(node){
+    if(node.circleType !== 1){
+      return null
+    }
+      // primero hacer conjetura horizontal
+      let nodo_derecha = this.getNode(node.row,node.col+1)
+      let nodo_izq = this.getNode(node.row,node.col-1)
+      let posiblesJugadas = []
+      let posiblesJugadaHorizontal = null;
+      posiblesJugadas.push({primero:node,segundo:nodo_derecha})
+      posiblesJugadas.push({primero:node,segundo:nodo_izq})
+      posiblesJugadaHorizontal = this.checkJugadaWhite(node,posiblesJugadas)
+      if(posiblesJugadaHorizontal.length === 2){
+        this.connectNodesByIndices(node.row,node.col,nodo_derecha.row,nodo_derecha.col);
+        this.connectNodesByIndices(node.row,node.col,nodo_izq.row,nodo_izq.col);
+        return posiblesJugadaHorizontal
+      }
+      else{
+        return null;
+      }
+  }
+
+    conjeturaVerticalBlanco(node){
+    if(node.circleType !== 1){
+      return null
+    }
+      // primero hacer conjetura horizontal
+      let nodo_arriba = this.getNode(node.row-1,node.col)
+      let nodo_abajo = this.getNode(node.row+1,node.col)
+      let posiblesJugadas = []
+      let posiblesJugadaVertical = null;
+      posiblesJugadas.push({primero:node,segundo:nodo_arriba})
+      posiblesJugadas.push({primero:node,segundo:nodo_abajo})
+      posiblesJugadaVertical= this.checkJugadaWhite(node,posiblesJugadas)
+      if(posiblesJugadaVertical.length === 2){
+        this.connectNodesByIndices(node.row,node.col,nodo_arriba.row,nodo_arriba.col);
+        this.connectNodesByIndices(node.row,node.col,nodo_abajo.row,nodo_abajo.col);
+        return posiblesJugadaVertical
+      }
+      else{
+        return null;
+      }
+  }
+
+  conjetura_arriba_arriba_negro(node){
+    if(node.circleType !== 2){
+      return null
+    }
+      
+      let nodo_arriba = this.getNode(node.row-1,node.col)
+      let nodo_arriba_arriba = this.getNode(node.row-2,node.col)
+
+      if(nodo_arriba == null || nodo_arriba_arriba == null){
+        return null;
+      }
+
+      let posiblesJugadas = []
+      let posiblesJugadaVertical = null;
+
+      posiblesJugadas.push({primero:node,segundo:nodo_arriba})
+      posiblesJugadas.push({primero:nodo_arriba,segundo:nodo_arriba_arriba})
+
+      posiblesJugadaVertical= this.checkJugadaBlack(node,posiblesJugadas)
+
+      if(posiblesJugadaVertical.length === 2){
+        this.connectNodesByIndices(node.row,node.col,nodo_arriba.row,nodo_arriba.col);
+        this.connectNodesByIndices(nodo_arriba.row , nodo_arriba.col , nodo_arriba_arriba.row, nodo_arriba_arriba.col);
+        return posiblesJugadaVertical
+      }
+      else{
+        return null;
+      }
+  }
+
+    conjetura_abajo_abajo_negro(node){
+    if(node.circleType !== 2){
+      return null
+    }
+      let nodo_abajo = this.getNode(node.row+1,node.col)
+      let nodo_abajo_abajo = this.getNode(node.row+2,node.col)
+
+      if(nodo_abajo == null || nodo_abajo_abajo == null){
+        return null;
+      }
+
+      let posiblesJugadas = []
+      let posiblesJugadaVertical = null;
+
+      posiblesJugadas.push({primero:node,segundo:nodo_abajo})
+      posiblesJugadas.push({primero:nodo_abajo,segundo:nodo_abajo_abajo})
+
+      posiblesJugadaVertical= this.checkJugadaBlack(node,posiblesJugadas)
+
+      if(posiblesJugadaVertical.length === 2){
+        this.connectNodesByIndices(node.row , node.col, nodo_abajo.row , nodo_abajo.col);
+        this.connectNodesByIndices(nodo_abajo.row , nodo_abajo.col , nodo_abajo_abajo.row , nodo_abajo_abajo.col);
+        return posiblesJugadaVertical
+      }
+      else{
+        return null;
+      }
+  }
 
 }
 
@@ -1273,6 +1394,11 @@ class Solver {
         }
         //------------------------------------
       }
+
+      if (this.graph.verifyend()){
+        return true;
+      }
+      this.EliminationSearch();
       // //-----------------------------------
       // let dead = this.graph.findDeadSpots();
       // console.log("dead", dead);
@@ -1295,6 +1421,84 @@ class Solver {
       // //------------------------------------
 
     }
+
+
+    EliminationSearch(){
+      let islas = this.graph.GetIsland();
+      for (let isle of islas){
+        console.log(isle);
+        let conjeHorizontal = this.graph.conjeturaHorizontalBlanco(isle);
+        if(conjeHorizontal != null){
+          DrawPlay(conjeHorizontal[0].primero,conjeHorizontal[0].segundo)
+          DrawPlay(conjeHorizontal[1].primero,conjeHorizontal[1].segundo)
+          this.solveforElimination();
+        }
+
+        let conjeVertical = this.graph.conjeturaVerticalBlanco(isle);
+        if(conjeVertical != null){
+          DrawPlay(conjeVertical[0].primero,conjeVertical[0].segundo)
+          DrawPlay(conjeVertical[1].primero,conjeVertical[1].segundo)
+          this.solveforElimination();
+        }
+
+        let conjearriba = this.graph.conjetura_arriba_arriba_negro(isle);
+        if(conjearriba != null){
+          DrawPlay(conjearriba[0].primero,conjearriba[0].segundo)
+          DrawPlay(conjearriba[1].primero,conjearriba[1].segundo)
+          this.solveforElimination();
+        }
+
+        let conjeabajo = this.graph.conjetura_abajo_abajo_negro(isle);
+        if(conjeabajo != null){
+          DrawPlay(conjeabajo[0].primero,conjeabajo[0].segundo)
+          DrawPlay(conjeabajo[1].primero,conjeabajo[1].segundo)
+          this.solveforElimination();
+        }
+
+      }
+    }
+
+    solveforElimination() {
+
+      let seguir = true;
+      let jugadasNegro =[]
+      let jugadasBlancoComplete=[]
+      let jugadasBlanco=[]
+      let jugadasBlank=[]
+      while(seguir == true){
+          //-----------------------------------
+        let dead = this.graph.findDeadSpots();
+        console.log("dead", dead);
+        jugadasNegro=this.graph.generateBlackCircleMoves();
+        dead = this.graph.findDeadSpots();
+        console.log("dead", dead);
+
+        jugadasBlancoComplete = this.graph.CompleteWhiteCircle();
+        dead = this.graph.findDeadSpots();
+        console.log("dead", dead);
+
+        jugadasBlanco=this.graph.generateWhiteCircleMoves();
+        //console.log("jugadas negro", jugadasNegro);
+        dead = this.graph.findDeadSpots();
+        console.log("dead", dead);
+
+        jugadasBlank=this.graph.generateBlanckSpaceMove();  
+        dead = this.graph.findDeadSpots();
+        console.log("dead", dead);
+
+        if(jugadasNegro.length ===0 && jugadasBlancoComplete.length===0 && jugadasBlanco.length===0 && jugadasBlank.length===0){
+          seguir = false;
+        }
+        //------------------------------------
+      }
+
+      if (this.graph.verifyend()){
+        return true;
+      }
+
+
+    }
+
 
     drawWhiteEdge(ListWitheEdge){
       for(let node of ListWitheEdge){
