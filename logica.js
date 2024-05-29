@@ -262,10 +262,10 @@ class Graph {
         if (!node) return [];
 
         const adjacents = [];
-        adjacents.push(this.getNode(row,col+1));
-        adjacents.push(this.getNode(row,col-1));
-        adjacents.push(this.getNode(row+1,col));
-        adjacents.push(this.getNode(row-1,col));
+        adjacents.push(this.getNode(row,col+1));//derecha
+        adjacents.push(this.getNode(row,col-1));//izquierda
+        adjacents.push(this.getNode(row+1,col));//abajo
+        adjacents.push(this.getNode(row-1,col));//arriba
 
         return adjacents;
     }
@@ -675,6 +675,46 @@ class Graph {
       }
       return posiblesJugadas;
     }
+
+
+    generateBlanckSpaceMove(){
+        
+        for (let row = 0; row < this.gridSize; row++){
+            for (let col = 0; col < this.gridSize; col++){
+                const node = this.getNode(row,col);
+                const jugadasPosiblesBlank=[]
+                if(node && node.circleType === null && this.num_vecinos(node)  == 1){
+                  let vecino = this.getAdjacentsall(row,col)
+                  for(let veci of vecino){
+                    if(veci == null){
+                      continue;
+                    }
+                    if(this.getAdjacents(veci.row, veci.col).length !== 2 &&  !(this.isConnectionMade(row,col,veci.row,veci.col))){
+                      jugadasPosiblesBlank.push({primero:node,segundo:veci});
+                    }
+
+                  }
+
+
+                  if(jugadasPosiblesBlank.length !== 1){
+                    continue;
+                  }
+                  let jugada = jugadasPosiblesBlank.pop();
+                  let nodesource = jugada.primero
+                  let nodedest = jugada.segundo
+                  DrawPlay(nodesource,nodedest);
+                  console.log("posibles a competar en celda vacia ");
+                  console.log(jugada);
+                  node.lineThrough=true
+                }
+            }
+        }
+
+
+    }
+
+
+
 
     num_vecinos(node){
         let sum_vem = 0;
@@ -1168,7 +1208,10 @@ class Solver {
       //console.log("jugadas negro", jugadasNegro);
       dead = this.graph.findDeadSpots();
       console.log("dead", dead);
-   
+
+      this.graph.generateBlanckSpaceMove();  
+      dead = this.graph.findDeadSpots();
+      console.log("dead", dead);
 
 
     }
