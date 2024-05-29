@@ -25,6 +25,7 @@ class Graph {
     constructor(gridSize) {
         this.gridSize = gridSize;
         this.nodes = [];
+        this.perls = 0;
 
         // Create nodes for each cell in the grid
         for (let row = 0; row < gridSize; row++) {
@@ -772,8 +773,8 @@ class Graph {
                 this.connectNodesByIndices(nodesource.row,nodesource.col,nodedest.row,nodedest.col);
                 conec2 = true;
             }
-
-            if(this.ifBranch(node) || this.ifBranch(nodesource) || this.ifBranch(nodedest)|| nodesource.deadSpot == true || nodedest.deadSpot == true){
+            
+            if(this.ifBranch(node) || this.ifBranch(nodesource) || this.ifBranch(nodedest)|| nodesource.deadSpot == true || nodedest.deadSpot == true || this.verifyInvalidLoop(node)===true){
                 console.log("jugada invalida:", jugadas);
                 if(conec1==true){
                     this.deleteConnectionByIndices(node.row,node.col,nodesource.row,nodesource.col);
@@ -811,8 +812,9 @@ class Graph {
           this.connectNodesByIndices(nodeSource.row,nodeSource.col,nodeDest.row,nodeDest.col);
           conec1 = true;
         }
+        
+        if(this.ifBranch(nodeSource) || this.ifBranch(nodeDest) || nodeSource.deadSpot == true || nodeDest.deadSpot == true || this.verifyInvalidLoop(node)===true ){
 
-        if(this.ifBranch(nodeSource) || this.ifBranch(nodeDest) || nodeSource.deadSpot == true || nodeDest.deadSpot == true){
           console.log("jugada invalida:", jugada);
           if(conec1==true){
             this.deleteConnectionByIndices(nodeSource.row,nodeSource.col,nodeDest.row,nodeDest.col);
@@ -912,6 +914,43 @@ class Graph {
       return blockedDirections >= 3;
   }
 
+  verifyInvalidLoop(startNode) {
+    let visited = new Set();
+    let stack = [{ node: startNode, parent: null }];
+    let perl = 0;
+
+    while (stack.length > 0) {
+        let element = stack.pop();
+        let node = element.node;
+        let parent = element.parent;
+
+        if (!visited.has(node)) {
+            visited.add(node);
+            
+            if (node.circleType === 1) perl++;
+            if (node.circleType === 2) perl++;
+
+            let neighbors = [node.vecinoarriba, node.vecinoabajo, node.vecinoderecha, node.vecinoizquierda];
+            for (let neighbor of neighbors) {
+                if (neighbor) {
+                    if (!visited.has(neighbor)) {
+                        stack.push({ node: neighbor, parent: node });
+                    } else if (neighbor !== parent) {
+                        if(perl !== this.perls){
+                          console.log("Ciclo invalido");
+                          return true;
+                        }
+                        
+                        
+                    }
+                }
+            }
+        }
+    }
+    console.log("Ciclo false");
+    return false;
+}
+
 
 
 
@@ -950,8 +989,10 @@ function createGrid() {
             if (type === 1) {
                 cell.classList.add("white", "circle");
                 grafo.getNode(i,j).circleType= 1 
+                grafo.perls = grafo.perls+1;
             } else if (type === 2) {
                 grafo.getNode(i,j).circleType= 2
+                grafo.perls = grafo.perls+1;
                 cell.classList.add("black", "circle");
             }
             cell.addEventListener("click", handleCellClick);
@@ -959,6 +1000,7 @@ function createGrid() {
         }
     }
   console.log(grafo)
+  console.log("#Perlas del grafo", grafo.perls)
 }
 
 function handleCellClick(event) {
@@ -978,6 +1020,7 @@ function handleCellClick(event) {
         if (isAdjacent(firstClickedCell, clickedCell)) {
             drawLine(firstClickedCell, clickedCell);
             grafo.connectNodesByIndices(row,col,selectedRow,selectedCol);
+            grafo.verifyInvalidLoop(grafo.getNode(row,col))
             grid[row][col]=1;
             grid[selectedRow][selectedCol]=1;
             console.log(grafo);
