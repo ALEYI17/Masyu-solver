@@ -321,11 +321,11 @@ class Graph {
     getBlackCirclesOneSpaceFromEdge() {
         const blackCircles = [];
 
-        for (let row = 1; row < this.gridSize - 1; row++) {
-            for (let col = 1; col < this.gridSize - 1; col++) {
+        for (let row = 1; row < this.gridSize ; row++) {
+            for (let col = 1; col < this.gridSize ; col++) {
                 if ((row === 1 || row === this.gridSize - 2 || col === 1 || col === this.gridSize - 2) &&
                     this.getNode(row, col).circleType === 2) {
-                    blackCircles.push({ node: this.getNode(row, col), edge: this.getEdge(row, col), corner: this.getCornerOneSpace(row, col) });
+                    blackCircles.push({ node: this.getNode(row, col), edge: this.getEdgeEspace(row, col), corner: this.getCornerOneSpace(row, col) });
                 }
             }
         }
@@ -338,6 +338,15 @@ class Graph {
         if (row === this.gridSize - 1) return 'bottom';
         if (col === 0) return 'left';
         if (col === this.gridSize - 1) return 'right';
+        if (row === 1) return 'one-space from top';
+        if (row === this.gridSize - 2) return 'one-space from bottom';
+        if (col === 1) return 'one-space from left';
+        if (col === this.gridSize - 2) return 'one-space from right';
+        return 'interior';
+    }
+
+        getEdgeEspace(row, col) {
+
         if (row === 1) return 'one-space from top';
         if (row === this.gridSize - 2) return 'one-space from bottom';
         if (col === 1) return 'one-space from left';
