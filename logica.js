@@ -1474,12 +1474,6 @@ class Solver {
           seguir = false;
           continue;
         }
-        let conjeHorizontal = this.graph.conjeturaHorizontalBlanco(isle);
-        if(conjeHorizontal != null){
-          DrawPlay(conjeHorizontal[0].primero,conjeHorizontal[0].segundo)
-          DrawPlay(conjeHorizontal[1].primero,conjeHorizontal[1].segundo)
-          this.solveforElimination();
-        }
 
         let conjeVertical = this.graph.conjeturaVerticalBlanco(isle);
         if(conjeVertical != null){
@@ -1487,6 +1481,15 @@ class Solver {
           DrawPlay(conjeVertical[1].primero,conjeVertical[1].segundo)
           this.solveforElimination();
         }
+        
+        let conjeHorizontal = this.graph.conjeturaHorizontalBlanco(isle);
+        if(conjeHorizontal != null){
+          DrawPlay(conjeHorizontal[0].primero,conjeHorizontal[0].segundo)
+          DrawPlay(conjeHorizontal[1].primero,conjeHorizontal[1].segundo)
+          this.solveforElimination();
+        }
+
+
 
         let conjearriba = this.graph.conjetura_arriba_arriba_negro(isle);
         if(conjearriba != null){
