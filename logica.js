@@ -751,6 +751,27 @@ class Graph {
         return sum_vem;
     }
 
+    getAllValidNeighbors(node) {
+
+      if (!node) return 0;
+  
+      let validNeighbors = 0;
+  
+      const directions =  this.getAdjacentsall(node.row,node.col);
+  
+      directions.forEach(dir => {
+          const neighbor = dir
+          if (neighbor && !neighbor.deadSpot && this.num_vecinos(neighbor) < 2) {
+              validNeighbors++;
+          }
+      });
+  
+      return validNeighbors;
+  }
+  
+
+  
+
     checkLineThrough(node){
         
 
@@ -1015,14 +1036,27 @@ class Graph {
     for (let nod of this.nodes){
 
       if(this.num_vecinos(nod) === 0 && (nod.circleType == 1 || nod.circleType == 2)){
-        Islas.push(nod);
+
+        
+
+        let validNeighbors = this.getAllValidNeighbors(nod);
+        console.log(nod ,validNeighbors)
+        Islas.push({ node: nod, validNeighbors: validNeighbors });
         
       }
 
 
     } 
 
-    return Islas;
+    Islas.sort((a, b) => a.validNeighbors - b.validNeighbors);
+    console.log(Islas)
+    if(Islas[0]){
+      return Islas[0].node;
+    }
+    else{
+      return null;
+    }
+    
 
   }
   
@@ -1433,9 +1467,13 @@ class Solver {
 
 
     EliminationSearch(){
-      let islas = this.graph.GetIsland();
-      for (let isle of islas){
-        console.log(isle);
+      let seguir = true;
+      while(seguir == true){
+        let isle = this.graph.GetIsland();
+        if(isle == null){
+          seguir = false;
+          continue;
+        }
         let conjeHorizontal = this.graph.conjeturaHorizontalBlanco(isle);
         if(conjeHorizontal != null){
           DrawPlay(conjeHorizontal[0].primero,conjeHorizontal[0].segundo)
@@ -1463,8 +1501,40 @@ class Solver {
           DrawPlay(conjeabajo[1].primero,conjeabajo[1].segundo)
           this.solveforElimination();
         }
-
       }
+      
+      // let islas = this.graph.GetIsland();
+      // for (let isle of islas){
+      //   console.log(isle);
+      //   let conjeHorizontal = this.graph.conjeturaHorizontalBlanco(isle);
+      //   if(conjeHorizontal != null){
+      //     DrawPlay(conjeHorizontal[0].primero,conjeHorizontal[0].segundo)
+      //     DrawPlay(conjeHorizontal[1].primero,conjeHorizontal[1].segundo)
+      //     this.solveforElimination();
+      //   }
+
+      //   let conjeVertical = this.graph.conjeturaVerticalBlanco(isle);
+      //   if(conjeVertical != null){
+      //     DrawPlay(conjeVertical[0].primero,conjeVertical[0].segundo)
+      //     DrawPlay(conjeVertical[1].primero,conjeVertical[1].segundo)
+      //     this.solveforElimination();
+      //   }
+
+      //   let conjearriba = this.graph.conjetura_arriba_arriba_negro(isle);
+      //   if(conjearriba != null){
+      //     DrawPlay(conjearriba[0].primero,conjearriba[0].segundo)
+      //     DrawPlay(conjearriba[1].primero,conjearriba[1].segundo)
+      //     this.solveforElimination();
+      //   }
+
+      //   let conjeabajo = this.graph.conjetura_abajo_abajo_negro(isle);
+      //   if(conjeabajo != null){
+      //     DrawPlay(conjeabajo[0].primero,conjeabajo[0].segundo)
+      //     DrawPlay(conjeabajo[1].primero,conjeabajo[1].segundo)
+      //     this.solveforElimination();
+      //   }
+
+      // }
     }
 
     solveforElimination() {
