@@ -445,7 +445,7 @@ class Graph {
 
     generateBlackCircleMoves() {
         const jugadasPosiblesBlack=[]
-
+        let juagadasHechas =[]
         for (let row = 0; row < this.gridSize; row++){
             for (let col = 0; col < this.gridSize; col++){
                 const node = this.getNode(row,col);
@@ -463,12 +463,14 @@ class Graph {
                             let nodedest = jugar.segundo
                             DrawPlay(node,nodesource);
                             DrawPlay(nodesource,nodedest);
+                            juagadasHechas.push(jugar);
                         }
                     }
                     
                 }
             }
         }
+        return juagadasHechas;
     }
 
     generateMovesFromBlackCircle(row,col,node) {
@@ -593,11 +595,12 @@ class Graph {
         }
         console.log("posibles a competar ");
         console.log(jugadasPosiblesWhite);
-
+        return jugadasPosiblesWhite;
     }
 
     generateWhiteCircleMoves(){
       const jugadasPosiblesWhite=[]
+      let jugadasHechas=[]
       for (let row = 0; row < this.gridSize; row++){
         for (let col = 0; col < this.gridSize; col++){
           const node = this.getNode(row,col);
@@ -612,11 +615,13 @@ class Graph {
               let nodesource = jugar.primero
               let nodedest = jugar.segundo
               DrawPlay(nodesource,nodedest);
+              jugadasHechas.push(jugar);
             }
 
           }
         }
       }
+      return jugadasHechas;
     }
 
     generateMovesFromWhiteCircle(node){
@@ -679,7 +684,7 @@ class Graph {
 
 
     generateBlanckSpaceMove(){
-        
+        let jugadasHechas = []
         for (let row = 0; row < this.gridSize; row++){
             for (let col = 0; col < this.gridSize; col++){
                 const node = this.getNode(row,col);
@@ -704,13 +709,14 @@ class Graph {
                   let nodesource = jugada.primero
                   let nodedest = jugada.segundo
                   DrawPlay(nodesource,nodedest);
+                  jugadasHechas.push(jugada);
                   console.log("posibles a competar en celda vacia ");
                   console.log(jugada);
                   node.lineThrough=true
                 }
             }
         }
-
+        return jugadasHechas;
 
     }
 
@@ -1236,26 +1242,57 @@ class Solver {
       console.log("Two Adjacent Black Circles:", twoAdjacentWhiteCircles);
       this.drawAdjacentBlack(twoAdjacentWhiteCircles);
       console.log("Black Circle with White Corners:", blackCircleWithWhiteCorners);
+      let seguir = true;
+      let jugadasNegro =[]
+      let jugadasBlancoComplete=[]
+      let jugadasBlanco=[]
+      let jugadasBlank=[]
+      while(seguir == true){
+          //-----------------------------------
+        let dead = this.graph.findDeadSpots();
+        console.log("dead", dead);
+        jugadasNegro=this.graph.generateBlackCircleMoves();
+        dead = this.graph.findDeadSpots();
+        console.log("dead", dead);
 
-      let dead = this.graph.findDeadSpots();
-      console.log("dead", dead);
-      this.graph.generateBlackCircleMoves();
-      dead = this.graph.findDeadSpots();
-      console.log("dead", dead);
+        jugadasBlancoComplete = this.graph.CompleteWhiteCircle();
+        dead = this.graph.findDeadSpots();
+        console.log("dead", dead);
 
-      this.graph.CompleteWhiteCircle();
-      dead = this.graph.findDeadSpots();
-      console.log("dead", dead);
+        jugadasBlanco=this.graph.generateWhiteCircleMoves();
+        //console.log("jugadas negro", jugadasNegro);
+        dead = this.graph.findDeadSpots();
+        console.log("dead", dead);
 
-      this.graph.generateWhiteCircleMoves();
-      //console.log("jugadas negro", jugadasNegro);
-      dead = this.graph.findDeadSpots();
-      console.log("dead", dead);
+        jugadasBlank=this.graph.generateBlanckSpaceMove();  
+        dead = this.graph.findDeadSpots();
+        console.log("dead", dead);
 
-      this.graph.generateBlanckSpaceMove();  
-      dead = this.graph.findDeadSpots();
-      console.log("dead", dead);
+        if(jugadasNegro.length ===0 && jugadasBlancoComplete.length===0 && jugadasBlanco.length===0 && jugadasBlank.length===0){
+          seguir = false;
+        }
+        //------------------------------------
+      }
+      // //-----------------------------------
+      // let dead = this.graph.findDeadSpots();
+      // console.log("dead", dead);
+      // this.graph.generateBlackCircleMoves();
+      // dead = this.graph.findDeadSpots();
+      // console.log("dead", dead);
 
+      // this.graph.CompleteWhiteCircle();
+      // dead = this.graph.findDeadSpots();
+      // console.log("dead", dead);
+
+      // this.graph.generateWhiteCircleMoves();
+      // //console.log("jugadas negro", jugadasNegro);
+      // dead = this.graph.findDeadSpots();
+      // console.log("dead", dead);
+
+      // this.graph.generateBlanckSpaceMove();  
+      // dead = this.graph.findDeadSpots();
+      // console.log("dead", dead);
+      // //------------------------------------
 
     }
 
