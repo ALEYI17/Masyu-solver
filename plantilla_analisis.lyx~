@@ -115,8 +115,16 @@ today
 \begin_layout Abstract
 
 \lang spanish
-En este documento se presenta el análisis de 3 diferentes algoritmos bubble
- sort, selection sort y quick sort
+El documento presenta un análisis y propuesta de dos algoritmos para resolver
+ el juego de Masyu, un problema NP completo.
+ Los algoritmos discutidos son el método de intersección y la búsqueda por
+ eliminación.
+ Se aborda la complejidad del juego y se ofrece una solución estructurada
+ que involucra el diseño de los algoritmos, su pseudocódigo y un análisis
+ de su complejidad.
+ Este trabajo busca proporcionar una comprensión más profunda de los desafíos
+ algorítmicos asociados con el juego de Masyu y ofrecer herramientas para
+ abordarlos eficientemente.
 \end_layout
 
 \begin_layout Part
@@ -134,44 +142,234 @@ Análisis
 \begin_layout Standard
 
 \lang spanish
-El problema, informalmente, se puede describir como: se puede calcular una
- para una secuencia de elementos 
-\begin_inset Formula $S=\left\langle a_{1},a_{2},a_{3},\ldots,a_{n}\right\rangle $
+El análisis del problema del juego Masyu revela su naturaleza como un problema
+ SAT (Satisfacción de Restricciones Booleanas).
+ En este juego, se presenta un tablero de tamaño
+\begin_inset Formula $NxN$
 \end_inset
 
-,en donde 
-\begin_inset Formula $\forall,a\in\mathbb{T}$
+ con perlas dispuestas de diversas maneras.
+ Estas perlas imponen restricciones específicas: las perlas negras requieren
+ que una línea pase a través de ellas y gire inmediatamente, con una línea
+ recta continuando después del giro; mientras que las perlas blancas deben
+ tener una línea recta pasando a través de ellas, con al menos un giro en
+ los espacios adyacentes.
+ El objetivo es formar un collar de perlas, creando un ciclo que cumpla
+ con todas las restricciones impuestas por las perlas.
+ Este análisis proporciona una comprensión inicial de la complejidad del
+ problema y su relación con la teoría SAT, lo que orienta hacia posibles
+ enfoques algorítmicos para resolverlo.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El problema del juego Masyu puede representarse de manera efectiva utilizando
+ la teoría de grafos, lo que proporciona una perspectiva estructurada para
+ abordar las restricciones y objetivos del juego.
+ En esta representación, el tablero de tamaño 
+\begin_inset Formula $N×N$
 \end_inset
 
- y en 
-\begin_inset Formula $\mathbb{T}$
+ se modela como un grafo 
+\begin_inset Formula $G(V,E)$
 \end_inset
 
- existe una relacion de orden parcial 
-\begin_inset Formula $\leq$
+, donde cada celda del tablero corresponde a un vértice 
+\begin_inset Formula $V$
 \end_inset
 
- una secuencia ordenada , es decir una permutacion 
-\begin_inset Formula $S'=\left\langle a_{1}',a_{2}',a_{3}',\ldots,a_{n}'\right\rangle $
+ y las conexiones entre celdas adyacentes (verticales y horizontales) se
+ representan mediante aristas 
+\begin_inset Formula $E$
 \end_inset
 
-en donde 
-\begin_inset Formula $a'_{i}\leq a'_{i+1}$
+.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+En este grafo, cada vértice 
+\begin_inset Formula $V$
 \end_inset
 
-y 
-\begin_inset Formula $a'_{i}\in S$
+ puede tener un máximo de cuatro aristas, que representan las conexiones
+ posibles con sus celdas adyacentes: arriba, abajo, izquierda y derecha.
+ Las conexiones diagonales no están permitidas, lo que añade una restricción
+ adicional en la estructura del grafo.
+ Esto significa que cada vértice tiene como máximo cuatro vecinos, limitando
+ así el grado del vértice a cuatro.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Los vértices del grafo pueden representar tres tipos diferentes de celdas
+ en el tablero de Masyu: espacios en blanco, perlas blancas y perlas negras.
+ Estas se codifican como sigue:
+\end_layout
+
+\begin_layout Itemize
+
+\lang spanish
+Los espacios en blanco se representan con el valor 0.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\lang spanish
+Las perlas blancas se representan con el valor 1 .
+\end_layout
+
+\begin_layout Itemize
+
+\lang spanish
+Las perlas negras se representan con el valor 2 .
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Cada tipo de perla impone restricciones específicas sobre cómo las líneas
+ pueden pasar a través de ellas.
+ En el caso de las perlas negras, cualquier línea que pase por una de estas
+ debe hacer un giro en la celda y continuar en línea recta después del giro.
+ Para las perlas blancas, la línea debe pasar recta a través de la celda,
+ pero debe girar al menos una vez en las celdas adyacentes.
+ Estas restricciones pueden traducirse en condiciones que las aristas del
+ grafo deben satisfacer, lo que complica la búsqueda de un ciclo válido
+ en el grafo.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Restricciones SAT
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Las restricciones SAT del problema de Masyu están directamente relacionadas
+ con las perlas negras y blancas en el tablero.
+ Para cada perla negra 
+\begin_inset Formula $(i,j)$
 \end_inset
 
- .Por ejemlo para 
-\begin_inset Formula $S=\left\langle 5,4,3,2,1\right\rangle $
+, si una línea pasa por esta celda, la línea debe girar en 
+\begin_inset Formula $(i,j)$
+\end_inset
+
+ y continuar en línea recta después del giro.
+ Esto impone una restricción que asegura que la dirección de la línea cambia
+ en la perla negra, y después del giro, la línea sigue una trayectoria recta
+ al menos una celda más allá.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+En el caso de las perlas blancas 
+\begin_inset Formula $(i,j)$
+\end_inset
+
+, la línea debe pasar recta a través de la celda 
+\begin_inset Formula $(i,j)$
+\end_inset
+
+.
+ Sin embargo, además de pasar de manera recta, debe haber al menos un giro
+ en uno de los espacios adyacentes a la perla blanca.
+ Esto significa que, aunque la línea mantenga una dirección recta en la
+ celda de la perla blanca, debe cambiar de dirección en al menos una de
+ las celdas vecinas, asegurando que el recorrido no sea completamente lineal.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Ejemplo de Restricciones
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Perla Negra: Consideremos una perla negra ubicada en 
+\begin_inset Formula $(i,j)$
+\end_inset
+
+.
+ Si una línea viene desde 
+\begin_inset Formula $(i−1,j)$
+\end_inset
+
+ y sale hacia
+\begin_inset Formula $(i,j+1)$
+\end_inset
+
+, esto significa que la línea debe girar en la celda 
+\begin_inset Formula $(i,j)$
+\end_inset
+
+.
+ En este caso, las celdas 
+\begin_inset Formula $(i−1,j)$
+\end_inset
+
+ y 
+\begin_inset Formula $(i,j+1)$
+\end_inset
+
+ deben estar conectadas por una línea recta antes y después del giro.
+ Esto asegura que la línea hace un giro de 90 grados en la perla negra y
+ sigue una trayectoria recta después del giro, cumpliendo con las restricciones
+ impuestas por este tipo de perla.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Perla Blanca :Para una perla blanca ubicada en 
+\begin_inset Formula $(i,j)$
+\end_inset
+
+, si la línea pasa de 
+\begin_inset Formula $(i−1,j)$
+\end_inset
+
+ a 
+\begin_inset Formula $(i+1,j)$
+\end_inset
+
+, la restricción adicional es que debe haber al menos un giro en los espacios
+ adyacentes a 
+\begin_inset Formula $(i,j)$
+\end_inset
+
+.
+ Esto significa que debe existir un cambio de dirección en al menos una
+ de las celdas
+\begin_inset Formula $(i−1,j−1)$
 \end_inset
 
 , 
-\begin_inset Formula $S'=\left\langle 1,2,3,4,5\right\rangle $
+\begin_inset Formula $(i−1,j+1)$
 \end_inset
 
+, 
+\begin_inset Formula $(i+1,j−1)$
+\end_inset
 
+ o 
+\begin_inset Formula $(i+1,j+1)$
+\end_inset
+
+.
+ Esto asegura que aunque la línea pase recta a través de la perla blanca,
+ hay un giro en uno de los espacios vecinos, cumpliendo así las condiciones
+ necesarias para las perlas blancas.
 \end_layout
 
 \begin_layout Section
@@ -222,22 +420,31 @@ Entradas:
 \begin_layout Enumerate
 
 \lang spanish
-\begin_inset Formula $S=\left\langle a_{1},a_{2},a_{3},\ldots,a_{n}\right\rangle $
+\begin_inset Formula $G(V,E)$
 \end_inset
 
-,en donde 
-\begin_inset Formula $\forall,a\in\mathbb{T}$
+: Un grafo donde: 
+\end_layout
+
+\begin_layout Enumerate
+
+\lang spanish
+\begin_inset Formula $V$
 \end_inset
 
- y en 
-\begin_inset Formula $\mathbb{T}$
+: Conjunto de vértices que representan las celdas del tablero.
+ Cada vértice puede ser un espacio en blanco (0), una perla blanca (1) o
+ una perla negra (2).
+\end_layout
+
+\begin_layout Enumerate
+
+\lang spanish
+\begin_inset Formula $E$
 \end_inset
 
- existe una relacion de orden parcial 
-\begin_inset Formula $\leq$
-\end_inset
-
-
+: Conjunto de aristas que representan los caminos posibles entre celdas
+ adyacentes (no diagonales) en el tablero.
 \end_layout
 
 \begin_layout Standard
@@ -270,18 +477,31 @@ Salidas:
 \begin_layout Enumerate
 
 \lang spanish
-\begin_inset Formula $S'=\left\langle a_{1}',a_{2}',a_{3}',\ldots,a_{n}'\right\rangle $
+e*: Un subconjunto de aristas 
+\begin_inset Formula $e∗⊆E$
 \end_inset
 
-en donde 
-\begin_inset Formula $a'_{i}\leq a'_{i+1}$
+ que forman un ciclo en el grafo 
+\begin_inset Formula $G$
 \end_inset
 
-y 
-\begin_inset Formula $a'_{i}\in S$
-\end_inset
+.
+ Este ciclo debe cumplir con todas las restricciones especificadas para
+ las perlas negras y blancas:
+\end_layout
 
+\begin_layout Enumerate
 
+\lang spanish
+Para las perlas negras: La línea debe girar en la perla y continuar en línea
+ recta después del giro.
+\end_layout
+
+\begin_layout Enumerate
+
+\lang spanish
+Para las perlas blancas: La línea debe pasar recta a través de la perla
+ y debe haber al menos un giro en los espacios adyacentes.
 \end_layout
 
 \begin_layout Standard
@@ -316,162 +536,43 @@ Algoritmos
 \end_layout
 
 \begin_layout Section
-
-\lang spanish
-Opción algoritmo 1
+Estructuras de datos
 \end_layout
 
 \begin_layout Subsection
 
 \lang spanish
-Algoritmo
+Clases
 \end_layout
 
 \begin_layout Standard
 
 \lang spanish
-Este algoritmo se basa en llevar de forma iterativa el elemento mayor hacia
- el final de la secuencia realizando intercambios hasta dejar la secuencia
- ordenada
-\end_layout
-
-\begin_layout Standard
-
-\lang spanish
-\begin_inset Float algorithm
+\begin_inset Float figure
 wide false
 sideways false
 status open
 
 \begin_layout Plain Layout
 
-\lang spanish
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{algorithmic}[1]
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Plain Layout
 
 \lang spanish
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-Procedure
-\end_layout
+\begin_inset Graphics
+	filename grafo.png
+	rotateOrigin center
 
 \end_inset
 
 
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-Bublle sort 
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset Formula $S$
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\end_layout
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 
 \lang spanish
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-For
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset Formula $j\leftarrow1$
-\end_inset
-
- 
-\begin_inset Formula $\mathbf{to}$
-\end_inset
-
- 
-\begin_inset Formula $\left\lceil S\right\rceil $
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-}
+Grafo
 \end_layout
 
 \end_inset
@@ -479,265 +580,40 @@ status open
 
 \end_layout
 
-\begin_layout Plain Layout
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 
 \lang spanish
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-For
+La clase Graph representa un grafo que modela el tablero del juego Masyu.
+ Posee tres atributos principales: gridSize, que indica el tamaño del tablero;
+ nodes, una lista que almacena los nodos del grafo; y perls, que cuenta
+ el número de perlas presentes en el tablero.
+ El constructor Graph(int gridSize) inicializa la clase, estableciendo el
+ tamaño del tablero, creando una lista vacía para almacenar los nodos y
+ configurando el contador de perlas en cero.
+ Esta clase es fundamental para estructurar y manipular el grafo del juego
+ Masyu.
 \end_layout
 
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset Formula $i\leftarrow1$
-\end_inset
-
- 
-\begin_inset Formula $\mathbf{to}$
-\end_inset
-
- 
-\begin_inset Formula $\left\lceil S\right\rceil $
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
+\begin_layout Standard
 
 \lang spanish
-\begin_inset ERT
+\begin_inset Float figure
+wide false
+sideways false
 status open
 
 \begin_layout Plain Layout
 
-
-\backslash
-If
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset Formula $S[i]>S[i+1]$
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Plain Layout
-
-\lang spanish
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-State
-\end_layout
-
-\end_inset
-
-
-\begin_inset Formula $Swap(S,i,i+1)$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang spanish
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-EndIf
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang spanish
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-EndFor
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang spanish
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-EndFor
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang spanish
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-  
-\backslash
-State
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-Return
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset Formula $S$
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang spanish
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-EndProcedure
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang spanish
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{algorithmic}
-\end_layout
+\begin_inset Graphics
+	filename nodo.png
 
 \end_inset
 
@@ -750,7 +626,9 @@ end{algorithmic}
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Bubble sort
+
+\lang spanish
+Nodo
 \end_layout
 
 \end_inset
@@ -761,6 +639,1922 @@ Bubble sort
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+La clase Node representa un nodo en el grafo del juego Masyu.
+ Cada nodo tiene una fila y una columna que indican su posición en el tablero,
+ un tipo de círculo (circleType) que puede ser 'negro', 'blanco' o nulo
+ si no hay círculo, y un booleano (lineThrough) que indica si una línea
+ pasa a través del nodo.
+ Además, posee un atributo booleano (ninetydegree) que indica si el giro
+ en el nodo es de 90 grados.
+ Los atributos vecinoArriba, vecinoAbajo, vecinoDerecha y vecinoIzquierda
+ son referencias a los nodos vecinos en las cuatro direcciones cardinales,
+ permitiendo la navegación a través del grafo.
+ Finalmente, deadSpot es un booleano que indica si el nodo es un "punto
+ muerto" donde ninguna línea puede pasar a través de él.
+ Esta clase es esencial para representar los nodos del tablero y gestionar
+ sus propiedades en el contexto del juego Masyu.
+\end_layout
+
+\begin_layout Section
+
+\lang spanish
+Algoritmos utilizados
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Algoritmos para calcular la información basica
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{getWhiteCirclesAtEdge()}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{getWhiteCirclesAtEdge}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{whiteCircles} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$
+\backslash
+text{fila} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$
+\backslash
+text{columna} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$(
+\backslash
+text{fila} = 0$ $
+\backslash
+lor$ $
+\backslash
+text{fila} = 
+\backslash
+text{gridSize} - 1$ $
+\backslash
+lor$ $
+\backslash
+text{columna} = 0$ $
+\backslash
+lor$ $
+\backslash
+text{columna} = 
+\backslash
+text{gridSize} - 1)$ $
+\backslash
+land$ $
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{columna}).
+\backslash
+text{circleType} = 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{whiteCircles}.
+\backslash
+text{append}(
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{columna}))$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{whiteCircles}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo 
+\lang english
+getWhiteCirclesAtEdge [1]
+\lang spanish
+ busca y devuelve una lista de nodos blancos que se encuentran en el borde
+ del tablero.
+ Para hacer esto, el algoritmo itera sobre todas las filas y columnas del
+ tablero utilizando dos bucles for.
+ En cada iteración, verifica si el nodo actual se encuentra en el borde
+ del tablero y si su tipo de círculo es blanco.
+ Si ambas condiciones se cumplen, el nodo se agrega a la lista whiteCircles.
+ Al final, el algoritmo devuelve la lista de nodos blancos encontrados en
+ el borde del tablero.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{getBlackCirclesAtEdge()}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{getBlackCirclesAtEdge}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{blackCircles} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$
+\backslash
+text{fila} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$
+\backslash
+text{columna} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$(
+\backslash
+text{fila} = 0$ $
+\backslash
+lor$ $
+\backslash
+text{fila} = 
+\backslash
+text{gridSize} - 1$ $
+\backslash
+lor$ $
+\backslash
+text{columna} = 0$ $
+\backslash
+lor$ $
+\backslash
+text{columna} = 
+\backslash
+text{gridSize} - 1)$ $
+\backslash
+land$ $
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{columna}).
+\backslash
+text{circleType} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{blackCircles}.
+\backslash
+text{append}(
+\backslash
+{
+\backslash
+text{node}: 
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{columna}), 
+\backslash
+text{edge}: 
+\backslash
+text{getEdge}(
+\backslash
+text{fila}, 
+\backslash
+text{columna}), 
+\backslash
+text{corner}: 
+\backslash
+text{getCorner}(
+\backslash
+text{fila}, 
+\backslash
+text{columna})
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{blackCircles}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo 
+\lang english
+getBlackCirclesAtEdge [2]
+\lang spanish
+ es similar al anterior, pero busca nodos negros en el borde del tablero.
+ También utiliza dos bucles for para iterar sobre todas las filas y columnas
+ del tablero.
+ Para cada nodo, verifica si está en el borde del tablero y si su tipo de
+ círculo es negro.
+ Si ambas condiciones se cumplen, el nodo junto con su borde y esquina correspon
+dientes se agrega a la lista blackCircles.
+ Al final, el algoritmo devuelve la lista de nodos negros encontrados en
+ el borde del tablero.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{getBlackCirclesOneSpaceFromEdge()}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{getBlackCirclesOneSpaceFromEdge}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{blackCircles} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$
+\backslash
+text{fila} 
+\backslash
+gets 1$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$
+\backslash
+text{columna} 
+\backslash
+gets 1$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$(
+\backslash
+text{fila} = 1$ $
+\backslash
+lor$ $
+\backslash
+text{fila} = 
+\backslash
+text{gridSize} - 2$ $
+\backslash
+lor$ $
+\backslash
+text{columna} = 1$ $
+\backslash
+lor$ $
+\backslash
+text{columna} = 
+\backslash
+text{gridSize} - 2)$ $
+\backslash
+land$ $
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{columna}).
+\backslash
+text{circleType} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{blackCircles}.
+\backslash
+text{append}(
+\backslash
+{
+\backslash
+text{node}: 
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{columna}), 
+\backslash
+text{edge}: 
+\backslash
+text{getEdge}(
+\backslash
+text{fila}, 
+\backslash
+text{columna}), 
+\backslash
+text{corner}: 
+\backslash
+text{getCornerOneSpace}(
+\backslash
+text{fila}, 
+\backslash
+text{columna})
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{blackCircles}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo getBlackCirclesOneSpaceFromEdge [3] busca y devuelve una lista
+ de nodos negros que se encuentran a una casilla de distancia del borde
+ del tablero.
+ Utiliza dos bucles for para iterar sobre todas las filas y columnas del
+ tablero, excluyendo el borde.
+ Para cada nodo, verifica si está a una casilla de distancia del borde del
+ tablero y si su tipo de círculo es negro.
+ Si ambas condiciones se cumplen, el nodo junto con su borde y esquina correspon
+dientes se agrega a la lista blackCircles.
+ Al final, el algoritmo devuelve la lista de nodos negros encontrados a
+ una casilla de distancia del borde del tablero.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{getThreeOrMoreWhiteCirclesInLine()}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{getThreeOrMoreWhiteCirclesInLine}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{whiteCircles} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$
+\backslash
+text{fila} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{count} 
+\backslash
+gets 0$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{sequence} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$
+\backslash
+text{col} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{node} 
+\backslash
+gets 
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{node}$ 
+\backslash
+textbf{and} $
+\backslash
+text{node.circleType} = 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{count} 
+\backslash
+gets 
+\backslash
+text{count} + 1$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{sequence.append(node)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+If{$
+\backslash
+text{count} 
+\backslash
+geq 3$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{whiteCircles.append}(
+\backslash
+{
+\backslash
+text{nodes}: 
+\backslash
+text{copy(sequence)}, 
+\backslash
+text{direction}: 
+\backslash
+text{'horizontal'}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+Else
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{count} 
+\backslash
+gets 0$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{sequence} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$
+\backslash
+text{col} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{count} 
+\backslash
+gets 0$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{sequence} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$
+\backslash
+text{fila} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{node} 
+\backslash
+gets 
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{node}$ 
+\backslash
+textbf{and} $
+\backslash
+text{node.circleType} = 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{count} 
+\backslash
+gets 
+\backslash
+text{count} + 1$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{sequence.append(node)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+If{$
+\backslash
+text{count} 
+\backslash
+geq 3$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{whiteCircles.append}(
+\backslash
+{
+\backslash
+text{nodes}: 
+\backslash
+text{copy(sequence)}, 
+\backslash
+text{direction}: 
+\backslash
+text{'vertical'}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+Else
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{count} 
+\backslash
+gets 0$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{sequence} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{whiteCircles}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo getThreeOrMoreWhiteCirclesInLine [4] busca y devuelve una lista
+ de secuencias de nodos blancos de longitud 3 o más en línea, ya sea horizontal
+ o verticalmente.
+ Itera a través de todas las filas y columnas del tablero, verificando si
+ hay secuencias de nodos blancos consecutivos en cada fila y columna.
+ Cuando encuentra una secuencia de al menos 3 nodos blancos, la agrega a
+ la lista whiteCircles, junto con la dirección de la secuencia (horizontal
+ o vertical).
+ Finalmente, devuelve la lista de secuencias encontradas.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{getTwoAdjacentBlackeCircles()}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{getTwoAdjacentBlackeCircles}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{adjacentBlackCircles} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$
+\backslash
+text{fila} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$
+\backslash
+text{col} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{node} 
+\backslash
+gets 
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{node}$ 
+\backslash
+textbf{and} $
+\backslash
+text{node.circleType} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{rightNode} 
+\backslash
+gets 
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{col} + 1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+If{$
+\backslash
+text{rightNode}$ 
+\backslash
+textbf{and} $
+\backslash
+text{rightNode.circleType} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{adjacentBlackCircles.append}(
+\backslash
+{
+\backslash
+text{nodes}: [
+\backslash
+text{node}, 
+\backslash
+text{rightNode}], 
+\backslash
+text{direction}: 
+\backslash
+text{'horizontal'}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{bottomNode} 
+\backslash
+gets 
+\backslash
+text{getNode}(
+\backslash
+text{fila} + 1, 
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+If{$
+\backslash
+text{bottomNode}$ 
+\backslash
+textbf{and} $
+\backslash
+text{bottomNode.circleType} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{adjacentBlackCircles.append}(
+\backslash
+{
+\backslash
+text{nodes}: [
+\backslash
+text{node}, 
+\backslash
+text{bottomNode}], 
+\backslash
+text{direction}: 
+\backslash
+text{'vertical'}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{adjacentBlackCircles}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo getTwoAdjacentBlackeCircles [5] busca y devuelve una lista
+ de pares de nodos negros adyacentes, ya sea horizontal o verticalmente.
+ Itera a través de todas las filas y columnas del tablero, verificando si
+ hay pares de nodos negros adyacentes en cada posición.
+ Cuando encuentra un par de nodos negros adyacentes, los agrega a la lista
+ adjacentBlackCircles, junto con la dirección de la adyacencia (horizontal
+ o vertical).
+ Finalmente, devuelve la lista de pares de nodos negros adyacentes encontrados.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{getBlackCircleWithWhiteCorners()}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{getBlackCircleWithWhiteCorners}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{blackCirclesWithWhiteCorners} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$
+\backslash
+text{fila} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$
+\backslash
+text{col} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{node} 
+\backslash
+gets 
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{node}$ 
+\backslash
+textbf{and} $
+\backslash
+text{node.circleType} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{topLeft} 
+\backslash
+gets 
+\backslash
+text{getNode}(
+\backslash
+text{fila} - 1, 
+\backslash
+text{col} - 1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{topRight} 
+\backslash
+gets 
+\backslash
+text{getNode}(
+\backslash
+text{fila} - 1, 
+\backslash
+text{col} + 1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+If{$
+\backslash
+text{topLeft}$ 
+\backslash
+textbf{and} $
+\backslash
+text{topLeft.circleType} = 1$ 
+\backslash
+textbf{and} $
+\backslash
+text{topRight}$ 
+\backslash
+textbf{and} $
+\backslash
+text{topRight.circleType} = 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{blackCirclesWithWhiteCorners.append}(
+\backslash
+{
+\backslash
+text{node}, 
+\backslash
+text{corners}: [
+\backslash
+text{topLeft}, 
+\backslash
+text{topRight}], 
+\backslash
+text{direction}: 
+\backslash
+text{'top'}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{bottomRight} 
+\backslash
+gets 
+\backslash
+text{getNode}(
+\backslash
+text{fila} + 1, 
+\backslash
+text{col} + 1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{bottomLeft} 
+\backslash
+gets 
+\backslash
+text{getNode}(
+\backslash
+text{fila} + 1, 
+\backslash
+text{col} - 1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+If{$
+\backslash
+text{bottomRight}$ 
+\backslash
+textbf{and} $
+\backslash
+text{bottomRight.circleType} = 1$ 
+\backslash
+textbf{and} $
+\backslash
+text{bottomLeft}$ 
+\backslash
+textbf{and} $
+\backslash
+text{bottomLeft.circleType} = 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{blackCirclesWithWhiteCorners.append}(
+\backslash
+{
+\backslash
+text{node}, 
+\backslash
+text{corners}: [
+\backslash
+text{bottomRight}, 
+\backslash
+text{bottomLeft}], 
+\backslash
+text{direction}: 
+\backslash
+text{'bottom'}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{blackCirclesWithWhiteCorners}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo 
+\lang english
+getBlackCircleWithWhiteCorners [6]
+\lang spanish
+ busca y devuelve una lista de nodos negros que tienen esquinas blancas
+ adyacentes.
+ Itera a través de todas las filas y columnas del tablero, verificando si
+ cada nodo es de tipo negro.
+ Luego, verifica si las esquinas superiores izquierda y derecha o las esquinas
+ inferiores izquierda y derecha del nodo son blancas.
+ Si se encuentran esquinas blancas adyacentes, se agrega el nodo junto con
+ las esquinas blancas y la dirección al cual pertenece la esquina en la
+ lista blackCirclesWithWhiteCorners.
+ Finalmente, se devuelve la lista de nodos negros con esquinas blancas adyacente
+s encontrados.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Los algoritmos del 1 al 6 proporcionan un reconocimiento básico del tablero
+ de juego en el juego de Masyu.
+ Estos algoritmos identifican perlas clave en el tablero que, dependiendo
+ de su posición, pueden tener movimientos específicos.
+ Por ejemplo, si una perla negra está en la esquina del tablero, solo puede
+ tener sus movimientos en dos direcciones.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Estos algoritmos son útiles para el juego de Masyu por varias razones:
+\end_layout
+
+\begin_layout Itemize
+
+\lang spanish
+Identificación de perlas clave: Los algoritmos ayudan a identificar perlas
+ negras y blancas en posiciones estratégicas del tablero, como en los bordes
+ o en esquinas.
+ Esto permite al jugador prever movimientos futuros y planificar en consecuencia.
+\end_layout
+
+\begin_layout Itemize
+
+\lang spanish
+Análisis de movimientos posibles: Al reconocer patrones específicos de perlas,
+ como las perlas negras con dos movimientos posibles, los algoritmos proporciona
+n información crucial sobre las posibles jugadas disponibles en cada turno.
+\end_layout
+
+\begin_layout Itemize
+
+\lang spanish
+Mejora de la precisión en las jugadas: Al reconocer las configuraciones
+ clave del tablero, los algoritmos ayudan al jugador a realizar jugadas
+ más precisas y acertadas, evitando errores comunes y maximizando las oportunida
+des estratégicas.
 \end_layout
 
 \begin_layout Subsection
@@ -772,64 +2566,5076 @@ Complejidad
 \begin_layout Standard
 
 \lang spanish
-El algoritmo 
-\noun on
-bubble sort
-\noun default
- tiene órden de complejidad .
+Todos los algoritmos presentados tienen una complejidad de tiempo cuadrática
  
+\begin_inset Formula $O(N^{2})$
+\end_inset
+
+, lo que significa que el tiempo de ejecución aumenta cuadráticamente con
+ el tamaño del tablero 
+\begin_inset Formula $N$
+\end_inset
+
+.
+ Esto se debe a que cada algoritmo itera sobre todas las celdas del tablero
+ una vez, realizando operaciones constantes en cada iteración.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Algoritmos para calcular jugadas perlas negras
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{generateBlackCircleMoves()}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{generateBlackCircleMoves}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{jugadasPosiblesBlack} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{jugadasHechas} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$
+\backslash
+text{fila} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$
+\backslash
+text{col} 
+\backslash
+gets 0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{node} 
+\backslash
+gets 
+\backslash
+text{getNode}(
+\backslash
+text{fila}, 
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{node}$ 
+\backslash
+textbf{and} $
+\backslash
+text{node.circleType} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{setninetydegree}(
+\backslash
+text{node})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+If{$
+\backslash
+lnot 
+\backslash
+text{node.ninetydegree}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{jugadasPosiblesBlack} 
+\backslash
+gets 
+\backslash
+text{generateMovesFromBlackCircle}(
+\backslash
+text{fila}, 
+\backslash
+text{col}, 
+\backslash
+text{node})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{filtroJugadas} 
+\backslash
+gets 
+\backslash
+text{checkJugadaBlack}(
+\backslash
+text{node}, 
+\backslash
+text{jugadasPosiblesBlack})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+If{$
+\backslash
+text{}(
+\backslash
+text{|filtroJugadas|}) = 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                        
+\backslash
+State $
+\backslash
+text{jugar} 
+\backslash
+gets 
+\backslash
+text{filtroJugadas.pop()}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                        
+\backslash
+State $
+\backslash
+text{nodeSource} 
+\backslash
+gets 
+\backslash
+text{jugar.primero}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                        
+\backslash
+State $
+\backslash
+text{nodeDest} 
+\backslash
+gets 
+\backslash
+text{jugar.segundo}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                        
+\backslash
+State $
+\backslash
+text{jugadasHechas.push}(
+\backslash
+text{jugar})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{jugadasHechas}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo generateBlackCircleMoves [7] genera y ejecuta movimientos posibles
+ para las perlas negras en el juego de Masyu.
+ Itera sobre todas las celdas del tablero y para cada celda que contiene
+ una perla negra, verifica si ya se ha girado 90 grados.
+ Si la perla negra no se ha girado aún, genera posibles movimientos y verifica
+ si hay un movimiento válido.
+ Si hay exactamente un movimiento válido, lo realiza y lo registra.
+ Finalmente, devuelve la lista de movimientos realizados.
+\end_layout
+
+\begin_layout Standard
+
+\size tiny
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{generateMovesFromBlackCircle(row, col, node)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{generateMovesFromBlackCircle}{row, col, node}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{moves} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{tot
+\backslash
+_vec} 
+\backslash
+gets 
+\backslash
+text{num
+\backslash
+_vecinos(node)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{adj} 
+\backslash
+gets 
+\backslash
+text{getAdjacentsall(row, col)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{lineThrough} 
+\backslash
+gets 
+\backslash
+text{false}$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{node.vecinoabajo} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{lineThrough} 
+\backslash
+gets 
+\backslash
+text{checkLineThrough(node.vecinoabajo)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$a$ 
+\backslash
+textbf{in} $
+\backslash
+text{adj}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$a = 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State 
+\backslash
+textbf{continue}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$a.
+\backslash
+text{row} = 
+\backslash
+text{node.row} + 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodetwo} 
+\backslash
+gets 
+\backslash
+text{getNode}(a.
+\backslash
+text{row} + 1, a.
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{moves.append}(
+\backslash
+{
+\backslash
+text{primero}: a, 
+\backslash
+text{segundo}: 
+\backslash
+text{nodetwo}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+ElsIf{$a.
+\backslash
+text{row} = 
+\backslash
+text{node.row} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodetwo} 
+\backslash
+gets 
+\backslash
+text{getNode}(a.
+\backslash
+text{row} - 1, a.
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{moves.append}(
+\backslash
+{
+\backslash
+text{primero}: a, 
+\backslash
+text{segundo}: 
+\backslash
+text{nodetwo}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{node.vecinoarriba} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{lineThrough} 
+\backslash
+gets 
+\backslash
+text{checkLineThrough(node.vecinoarriba)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$a$ 
+\backslash
+textbf{in} $
+\backslash
+text{adj}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$a = 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State 
+\backslash
+textbf{continue}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$a.
+\backslash
+text{col} = 
+\backslash
+text{node.col} + 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodetwo} 
+\backslash
+gets 
+\backslash
+text{getNode}(a.
+\backslash
+text{row}, a.
+\backslash
+text{col} + 1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{moves.append}(
+\backslash
+{
+\backslash
+text{primero}: a, 
+\backslash
+text{segundo}: 
+\backslash
+text{nodetwo}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+ElsIf{$a.
+\backslash
+text{col} = 
+\backslash
+text{node.col} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodetwo} 
+\backslash
+gets 
+\backslash
+text{getNode}(a.
+\backslash
+text{row}, a.
+\backslash
+text{col} - 1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{moves.append}(
+\backslash
+{
+\backslash
+text{primero}: a, 
+\backslash
+text{segundo}: 
+\backslash
+text{nodetwo}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{node.vecinoderecha} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{lineThrough} 
+\backslash
+gets 
+\backslash
+text{checkLineThrough(node.vecinoderecha)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$a$ 
+\backslash
+textbf{in} $
+\backslash
+text{adj}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$a = 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State 
+\backslash
+textbf{continue}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$a.
+\backslash
+text{row} = 
+\backslash
+text{node.row} + 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodetwo} 
+\backslash
+gets 
+\backslash
+text{getNode}(a.
+\backslash
+text{row} + 1, a.
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{moves.append}(
+\backslash
+{
+\backslash
+text{primero}: a, 
+\backslash
+text{segundo}: 
+\backslash
+text{nodetwo}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+ElsIf{$a.
+\backslash
+text{row} = 
+\backslash
+text{node.row} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodetwo} 
+\backslash
+gets 
+\backslash
+text{getNode}(a.
+\backslash
+text{row} - 1, a.
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{moves.append}(
+\backslash
+{
+\backslash
+text{primero}: a, 
+\backslash
+text{segundo}: 
+\backslash
+text{nodetwo}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{node.vecinoizquierda} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{lineThrough} 
+\backslash
+gets 
+\backslash
+text{checkLineThrough(node.vecinoizquierda)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$a$ 
+\backslash
+textbf{in} $
+\backslash
+text{adj}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$a = 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State 
+\backslash
+textbf{continue}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$a.
+\backslash
+text{row} = 
+\backslash
+text{node.row} + 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodetwo} 
+\backslash
+gets 
+\backslash
+text{getNode}(a.
+\backslash
+text{row} + 1, a.
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{moves.append}(
+\backslash
+{
+\backslash
+text{primero}: a, 
+\backslash
+text{segundo}: 
+\backslash
+text{nodetwo}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+ElsIf{$a.
+\backslash
+text{row} = 
+\backslash
+text{node.row} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodetwo} 
+\backslash
+gets 
+\backslash
+text{getNode}(a.
+\backslash
+text{row} - 1, a.
+\backslash
+text{col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{moves.append}(
+\backslash
+{
+\backslash
+text{primero}: a, 
+\backslash
+text{segundo}: 
+\backslash
+text{nodetwo}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{moves}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo generateMovesFromBlackCircle(row, col, node) [8] genera movimientos
+ posibles desde una perla negra en el juego de Masyu.
+ Itera sobre los vecinos de la perla negra y verifica si es posible hacer
+ un movimiento válido desde esa posición.
+ Luego, agrega los movimientos posibles a la lista moves y la devuelve al
+ finalizar.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Los algoritmos generateBlackCircleMoves() y generateMovesFromBlackCircle(row,
+ col, node) son fundamentales para la lógica de juego del Masyu.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El primero, generateBlackCircleMoves(), recorre todas las perlas negras
+ en el tablero y genera posibles movimientos a partir de cada una.
+ Utiliza una serie de funciones auxiliares para determinar la viabilidad
+ de cada movimiento, como verificar si la perla negra ya ha sido girada
+ en 90 grados y si hay una línea a través de los vecinos de la perla negra.
+ Finalmente, devuelve una lista de los movimientos válidos realizados.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Por otro lado, generateMovesFromBlackCircle(row, col, node) se encarga de
+ generar movimientos posibles desde una perla negra específica en el tablero.
+ Primero, calcula los vecinos de la perla negra en cuestión y verifica si
+ hay una línea a través de estos vecinos.
+ Luego, genera movimientos válidos basados en la disposición de los vecinos
+ y las reglas del juego.
+ Retorna una lista de los movimientos posibles desde la perla negra dada.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Complejidad
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+La complejidad de los algoritmos implementados para la generación de movimientos
+ en el juego Masyu es cuadrática,
+\begin_inset Formula $O(N^{2})$
+\end_inset
+
+, donde 
+\begin_inset Formula $N$
+\end_inset
+
+ representa el tamaño del tablero.
+ Tanto el algoritmo generateBlackCircleMoves() como generateMovesFromBlackCircle
+(row, col, node) recorren el tablero y realizan operaciones sobre cada celda
+ y sus vecinos.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Algoritmos para calcular jugadas perlas blancas
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{CompleteWhiteCircle()}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{CompleteWhiteCircle}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{jugadasPosiblesWhite} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$row$ 
+\backslash
+textbf{in} $0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$col$ 
+\backslash
+textbf{in} $0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{node} 
+\backslash
+gets 
+\backslash
+text{getNode}(row, col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{node}$ 
+\backslash
+textbf{and} $
+\backslash
+text{node.circleType} = 1$ 
+\backslash
+textbf{and} $
+\backslash
+text{num
+\backslash
+_vecinos(node)} = 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{jugada} 
+\backslash
+gets 
+\backslash
+text{completeLineThrough(node)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodesource} 
+\backslash
+gets 
+\backslash
+text{jugada.primero}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodedest} 
+\backslash
+gets 
+\backslash
+text{jugada.segundo}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{node.lineThrough} 
+\backslash
+gets 
+\backslash
+text{true}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{jugadasPosiblesWhite.append(jugada)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{jugadasPosiblesWhite}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo, denominado CompleteWhiteCircle [9], se encarga de identificar
+ y completar las líneas que atraviesan perlas blancas con un solo vecino.
+ Su funcionamiento es iterar sobre todas las celdas del tablero, detectando
+ perlas blancas con solo un vecino adyacente.
+ Luego, invoca la función completeLineThrough(node) para determinar la línea
+ adicional necesaria para completar la perla blanca.
+ Posteriormente, realiza la jugada correspondiente, marcando la perla blanca
+ como completada, y añade la jugada a una lista de posibles movimientos.
+ Finalmente, retorna la lista de jugadas posibles para completar las perlas
+ blancas.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{generateWhiteCircleMoves()}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{generateWhiteCircleMoves}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{jugadasPosiblesWhite} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{jugadasHechas} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$row$ 
+\backslash
+textbf{in} $0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$col$ 
+\backslash
+textbf{in} $0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{node} 
+\backslash
+gets 
+\backslash
+text{getNode}(row, col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{node}$ 
+\backslash
+textbf{and} $
+\backslash
+text{node.circleType} = 1$ 
+\backslash
+textbf{and} $
+\backslash
+text{num
+\backslash
+_vecinos(node)} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{posiblesJugadas} 
+\backslash
+gets 
+\backslash
+text{generateMovesFromWhiteCircle(node)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{filtroJugadas} 
+\backslash
+gets 
+\backslash
+text{checkJugadaWhite(node, posiblesJugadas)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+If{$
+\backslash
+text{|filtroJugadas|} = 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{jugar} 
+\backslash
+gets 
+\backslash
+text{filtroJugadas.pop()}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{nodesource} 
+\backslash
+gets 
+\backslash
+text{jugar.primero}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{nodedest} 
+\backslash
+gets 
+\backslash
+text{jugar.segundo}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State $
+\backslash
+text{jugadasHechas.append(jugar)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{jugadasHechas}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo 
+\lang english
+generateWhiteCircleMoves[10
+\lang spanish
+]busca generar movimientos válidos para las perlas blancas que tienen exactament
+e dos vecinos.
+ Itera sobre todas las celdas del tablero, identificando las perlas blancas
+ con dos vecinos y luego llama a la función generateMovesFromWhiteCircle(node)
+ para determinar los movimientos posibles para cada perla blanca.
+ Luego, filtra las jugadas válidas utilizando la función checkJugadaWhite(node,
+ posiblesJugadas).
+ Si solo hay una jugada válida, la realiza y la agrega a la lista de jugadas
+ realizadas jugadasHechas.
+ Finalmente, retorna la lista de jugadas realizadas.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{generateMovesFromWhiteCircle(node)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{generateMovesFromWhiteCircle}{
+\backslash
+textbf{node}}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{posiblesJugadas} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+neg 
+\backslash
+text{verifyWhite(node)}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+If{$
+\backslash
+text{node.vecinoabajo} 
+\backslash
+neq 
+\backslash
+text{null}$ 
+\backslash
+textbf{and} $
+\backslash
+text{node.vecinoarriba} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{nodeArriba} 
+\backslash
+gets 
+\backslash
+text{node.vecinoarriba}$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{nodeAbajo} 
+\backslash
+gets 
+\backslash
+text{node.vecinoabajo}$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{ArribaDerecha} 
+\backslash
+gets 
+\backslash
+text{getNode}(nodeArriba.row, nodeArriba.col + 1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{ArribaIzquierda} 
+\backslash
+gets 
+\backslash
+text{getNode}(nodeArriba.row, nodeArriba.col - 1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{ArribaDerecha} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{posiblesJugadas.append}(
+\backslash
+{
+\backslash
+text{primero: nodeArriba, segundo: ArribaDerecha}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{ArribaIzquierda} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{posiblesJugadas.append}(
+\backslash
+{
+\backslash
+text{primero: nodeArriba, segundo: ArribaIzquierda}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{AbajoDerecha} 
+\backslash
+gets 
+\backslash
+text{getNode}(nodeAbajo.row, nodeAbajo.col + 1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{AbajoIzquierda} 
+\backslash
+gets 
+\backslash
+text{getNode}(nodeAbajo.row, nodeAbajo.col - 1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{AbajoDerecha} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{posiblesJugadas.append}(
+\backslash
+{
+\backslash
+text{primero: nodeAbajo, segundo: AbajoDerecha}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{AbajoIzquierda} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{posiblesJugadas.append}(
+\backslash
+{
+\backslash
+text{primero: nodeAbajo, segundo: AbajoIzquierda}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+ElsIf{$
+\backslash
+text{node.vecinoderecha} 
+\backslash
+neq 
+\backslash
+text{null}$ 
+\backslash
+textbf{and} $
+\backslash
+text{node.vecinoizquierda} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{NodeDerecha} 
+\backslash
+gets 
+\backslash
+text{node.vecinoderecha}$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{NodeIzquierda} 
+\backslash
+gets 
+\backslash
+text{node.vecinoizquierda}$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{DerechaArriba} 
+\backslash
+gets 
+\backslash
+text{getNode}(NodeDerecha.row - 1, NodeDerecha.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{DerechaAbajo} 
+\backslash
+gets 
+\backslash
+text{getNode}(NodeDerecha.row + 1, NodeDerecha.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{DerechaArriba} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{posiblesJugadas.append}(
+\backslash
+{
+\backslash
+text{primero: NodeDerecha, segundo: DerechaArriba}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{DerechaAbajo} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{posiblesJugadas.append}(
+\backslash
+{
+\backslash
+text{primero: NodeDerecha, segundo: DerechaAbajo}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{IzquierdaArriba} 
+\backslash
+gets 
+\backslash
+text{getNode}(NodeIzquierda.row - 1, NodeIzquierda.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{IzquierdaAbajo} 
+\backslash
+gets 
+\backslash
+text{getNode}(NodeIzquierda.row + 1, NodeIzquierda.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{IzquierdaArriba} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{posiblesJugadas.append}(
+\backslash
+{
+\backslash
+text{primero: NodeIzquierda, segundo: IzquierdaArriba}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{IzquierdaAbajo} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{posiblesJugadas.append}(
+\backslash
+{
+\backslash
+text{primero: NodeIzquierda, segundo: IzquierdaAbajo}
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{posiblesJugadas}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo 
+\lang english
+generateMovesFromWhiteCircle [11]
+\lang spanish
+ busca generar los movimientos posibles para una perla blanca dada.
+ Comienza verificando si la perla blanca tiene una línea que atraviesa su
+ ubicación utilizando la función verifyWhite(node).
+ Si no hay una línea que atraviesa la perla blanca, el algoritmo continúa
+ buscando las posibles jugadas para conectarla con sus vecinos.
+ Dependiendo de la disposición de los vecinos, determina las direcciones
+ en las que se pueden realizar movimientos adicionales para completar la
+ línea blanca.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Complejidad
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+La complejidad de este algoritmo es
 \begin_inset Formula $O(n^{2})$
 \end_inset
 
- .La complejidad es hallada por inspección 
+, donde
+\begin_inset Formula $n$
+\end_inset
+
+ es el tamaño del tablero, ya que recorre todas las celdas del tablero en
+ un bucle doble.
+ Dentro de cada iteración del bucle, se realiza una verificación para determinar
+ si la perla blanca tiene una línea a través de ella, lo que tiene una complejid
+ad de tiempo constante
+\begin_inset Formula $O(1)$
+\end_inset
+
+.
+ Luego, se generan posibles movimientos para conectar la perla blanca con
+ sus vecinos, lo que también implica operaciones de tiempo constante para
+ acceder a los nodos vecinos y realizar operaciones de lista.
+ Por lo tanto, en general, la complejidad del algoritmo es dominada por
+ el bucle principal, resultando en una complejidad total de
+\begin_inset Formula $O(n^{2})$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Subsection
 
 \lang spanish
-Invariante
+Algoritmos para calcular jugadas espacios
 \end_layout
 
-\begin_layout Itemize
+\begin_layout Standard
 
-\series bold
-\bar under
 \lang spanish
-Inicio
-\series default
-\bar default
-: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
 \end_layout
 
-\begin_layout Itemize
+\begin_layout Plain Layout
 
-\series bold
-\bar under
-\lang spanish
-Avance
-\series default
-\bar default
-: 
+
+\backslash
+caption{generateBlankSpaceMove()}
 \end_layout
 
-\begin_layout Itemize
+\begin_layout Plain Layout
 
-\series bold
-\bar under
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{generateBlanckSpaceMove}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{jugadasHechas} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$row$ 
+\backslash
+textbf{in} $0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$col$ 
+\backslash
+textbf{in} $0$ 
+\backslash
+textbf{to} $
+\backslash
+text{gridSize} - 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{node} 
+\backslash
+gets 
+\backslash
+text{getNode}(row, col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{jugadasPosiblesBlank} 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$
+\backslash
+text{node}$ 
+\backslash
+textbf{and} $
+\backslash
+text{node.circleType} = 
+\backslash
+text{null}$ 
+\backslash
+textbf{and} $
+\backslash
+text{num
+\backslash
+_vecinos(node)} = 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{vecino} 
+\backslash
+gets 
+\backslash
+text{getAdjacentsall}(row, col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+For{$
+\backslash
+text{veci}$ 
+\backslash
+textbf{in} $
+\backslash
+text{vecino}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+If{$
+\backslash
+text{veci = null}$ 
+\backslash
+textbf{or} $
+\backslash
+text{veci.deadSpot}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                        
+\backslash
+State 
+\backslash
+textbf{continue}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+If{$
+\backslash
+text{getAdjacents(veci.row, veci.col).length} 
+\backslash
+neq 2$ 
+\backslash
+textbf{and} 
+\backslash
+textbf{not} $
+\backslash
+text{isConnectionMade(row, col, veci.row, veci.col)}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                        
+\backslash
+State $
+\backslash
+text{jugadasPosiblesBlank.push}(
+\backslash
+{ 
+\backslash
+text{primero: node, segundo: veci} 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+If{$
+\backslash
+text{jugadasPosiblesBlank.length} 
+\backslash
+neq 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+State 
+\backslash
+textbf{continue}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{jugada} 
+\backslash
+gets 
+\backslash
+text{jugadasPosiblesBlank.pop()}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodesource} 
+\backslash
+gets 
+\backslash
+text{jugada.primero}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{nodedest} 
+\backslash
+gets 
+\backslash
+text{jugada.segundo}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{jugadasHechas.push(jugada)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{node.lineThrough} 
+\backslash
+gets 
+\backslash
+text{true}$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{jugadasHechas}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
 \lang spanish
-Terminación
+El algoritmo 
+\lang english
+GenerateBlankSpaceMove 
+\lang spanish
+[12] busca generar movimientos posibles para una celda vacía en el tablero
+ del juego.
+ Itera sobre todas las celdas del tablero y verifica si la celda actual
+ es una celda vacía (0) con exactamente un vecino.
+ Si se cumple esta condición, busca los vecinos de la celda actual y evalúa
+ si es posible realizar un movimiento desde la celda actual hacia uno de
+ sus vecinos.
+ Para considerar un movimiento como posible, el vecino no debe ser una celda
+ vacía o una celda marcada como "deadSpot", y además, no debe haber una
+ conexión previamente establecida entre la celda actual y el vecino.
+ Si se encuentra un único movimiento posible, se realiza la jugada, marcando
+ la celda actual como atravesada por una línea (lineThrough) y se registra
+ la jugada realizada en una lista de jugadas hechas (jugadasHechas).
+ Finalmente, el algoritmo devuelve la lista de jugadas hechas.
 \end_layout
 
 \begin_layout Subsection
 
 \lang spanish
-Notas de implementación
+Complejidad
 \end_layout
 
-\begin_layout Part
+\begin_layout Standard
 
 \lang spanish
-Comparación de los algoritmos
+La complejidad de este algoritmo generateBlanckSpaceMove() es
+\begin_inset Formula $O(N^{2})$
+\end_inset
+
+, donde
+\begin_inset Formula $N$
+\end_inset
+
+ es el tamaño del tablero.
+ Esto se debe a que el algoritmo itera sobre todas las celdas del tablero
+ (cada celda se recorre una vez) y realiza operaciones de tiempo constante
+ en cada iteración.
+ Por lo tanto, el tiempo de ejecución del algoritmo es proporcional al número
+ total de celdas en el tablero, lo que resulta en una complejidad cuadrática.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Algoritmos de verificación
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{checkJugada(jugadaDisponible)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{checkJugadaWhite}{$node, jugadaDisponible$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $findDeadSpots()$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $verificate
+\backslash
+_play 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$jugada$ 
+\backslash
+textbf{in} $jugadaDisponible$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{nodeSource} 
+\backslash
+gets 
+\backslash
+text{jugada.primero}$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{nodeDest} 
+\backslash
+gets 
+\backslash
+text{jugada.segundo}$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $conec1 
+\backslash
+gets 
+\backslash
+text{false}$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+If{$!
+\backslash
+text{isConnectionMade(nodeSource.row, nodeSource.col, nodeDest.row, nodeDest.col)}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{connectNodesByIndices(nodeSource.row, nodeSource.col, nodeDest.row, nodeDest.co
+l)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $conec1 
+\backslash
+gets 
+\backslash
+text{true}$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+If{$
+\backslash
+text{ifBranch(nodeSource)}$ 
+\backslash
+textbf{or} $
+\backslash
+text{ifBranch(nodeDest)}$ 
+\backslash
+textbf{or} $nodeSource.deadSpot == 
+\backslash
+text{true}$ 
+\backslash
+textbf{or} $nodeDest.deadSpot == 
+\backslash
+text{true}$ 
+\backslash
+textbf{or} $
+\backslash
+text{verifyInvalidLoop(node)}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$conec1 == 
+\backslash
+text{true}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{deleteConnectionByIndices(nodeSource.row, nodeSource.col, nodeDest.row,
+ nodeDest.col)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+Else
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $verificate
+\backslash
+_play.push(jugada)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$conec1 == 
+\backslash
+text{true}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $
+\backslash
+text{deleteConnectionByIndices(nodeSource.row, nodeSource.col, nodeDest.row,
+ nodeDest.col)}$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $verificate
+\backslash
+_play$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo 
+\lang english
+checkJugada 
+\lang spanish
+[13] se encarga de verificar si una jugada para una perla es válida, considerand
+o varios criterios como la presencia de nodos de bifurcación, puntos muertos,
+ la existencia de un bucle inválido y si la conexión entre los nodos de
+ la jugada ya está realizada.
+ Retorna una lista de jugadas verificadas que son válidas para realizar.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{ifBranch(node)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{ifBranch}{$node$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{num
+\backslash
+_vecinos(node)} 
+\backslash
+geq 3$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{true}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{false}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+La función
+\lang english
+ ifBranch 
+\lang spanish
+[14] verifica si un nodo es un nodo de bifurcación, es decir, si tiene al
+ menos tres vecinos.
+ Retorna true si es un nodo de bifurcación y false en caso contrario.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{isDeadSpot(row, col)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{isDeadSpot}{$row$, $col$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{node} 
+\backslash
+gets 
+\backslash
+text{getNode}(row, col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+neg 
+\backslash
+text{node}$ 
+\backslash
+textbf{or} $
+\backslash
+text{node.circleType} 
+\backslash
+neq 
+\backslash
+text{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{false}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{num
+\backslash
+_vecinos(node)} 
+\backslash
+neq 0$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{false}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{node.deadSpot}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{true}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{blockedDirections} 
+\backslash
+gets 0$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{adjacents} 
+\backslash
+gets 
+\backslash
+text{getAdjacentsall}(row, col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$dir$ 
+\backslash
+textbf{in} $
+\backslash
+{3, 2, 1, 0
+\backslash
+}$} 
+\backslash
+Comment{Check each direction}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{neighbor} 
+\backslash
+gets 
+\backslash
+text{getNode}(row + 
+\backslash
+text{dir.row}, col + 
+\backslash
+text{dir.col})$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+If{$
+\backslash
+neg 
+\backslash
+text{neighbor}$ 
+\backslash
+textbf{or} $
+\backslash
+text{num
+\backslash
+_vecinos(neighbor)} = 2$ 
+\backslash
+textbf{or} $
+\backslash
+text{neighbor.deadSpot}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{blockedDirections} 
+\backslash
+gets 
+\backslash
+text{blockedDirections} + 1$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return} $
+\backslash
+text{blockedDirections} 
+\backslash
+geq 3$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo 
+\lang english
+isDeadSpot 
+\lang spanish
+[15] determina si una celda específica del tablero es un "punto muerto".
+ Un punto muerto es una celda vacía que no tiene vecinos y está bloqueada
+ en al menos tres direcciones adyacentes.
+ El algoritmo comprueba si la celda está vacía y sin vecinos, y luego verifica
+ si al menos tres direcciones adyacentes están bloqueadas, donde una dirección
+ se considera bloqueada si la celda vecina correspondiente tiene dos vecinos
+ o es un punto muerto.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{isConnectionMade($row1, col1, row2, col2$)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{isConnectionMade}{$row1, col1, row2, col2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $node1 
+\backslash
+gets 
+\backslash
+text{getNode}(row1, col1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $node2 
+\backslash
+gets 
+\backslash
+text{getNode}(row2, col2)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$node1$ 
+\backslash
+textbf{and} $node2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} ($node1.vecinoarriba = node2$ 
+\backslash
+textbf{or} $node1.vecinoabajo = node2$ 
+\backslash
+textbf{or} $node1.vecinoderecha = node2$ 
+\backslash
+textbf{or} $node1.vecinoizquierda = node2$)
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+Else
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{false}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo 
+\lang english
+isConnectionMade
+\lang spanish
+[16] verifica si existe una conexión entre dos nodos dados en el tablero
+ del juego.
+ Primero, obtiene los nodos correspondientes a las coordenadas proporcionadas.
+ Luego, comprueba si ambos nodos existen y si alguno de los nodos vecinos
+ de node1 coincide con node2.
+ Si hay una conexión entre los dos nodos, devuelve verdadero; de lo contrario,
+ devuelve falso.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{verifyInvalidLoop($startNode$)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{verifyInvalidLoop}{$startNode$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $visited 
+\backslash
+gets 
+\backslash
+text{set vacío}$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $stack 
+\backslash
+gets [
+\backslash
+{ 
+\backslash
+text{node}: startNode, 
+\backslash
+text{parent}: 
+\backslash
+text{null} 
+\backslash
+}]$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $perl 
+\backslash
+gets 0$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+While{$
+\backslash
+text{|stack|}.
+\backslash
+text{} > 0$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $element 
+\backslash
+gets 
+\backslash
+text{stack}.
+\backslash
+text{pop}()$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $node 
+\backslash
+gets element.
+\backslash
+text{node}$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $parent 
+\backslash
+gets element.
+\backslash
+text{parent}$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+If{$
+\backslash
+lnot 
+\backslash
+text{visited}.
+\backslash
+text{contains}(node)$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{visited}.
+\backslash
+text{add}(node)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$node.
+\backslash
+text{circleType} = 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $perl 
+\backslash
+gets perl + 1$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$node.
+\backslash
+text{circleType} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State $perl 
+\backslash
+gets perl + 1$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+text{neighbors} 
+\backslash
+gets [node.
+\backslash
+text{vecinoarriba}, node.
+\backslash
+text{vecinoabajo}, node.
+\backslash
+text{vecinoderecha}, node.
+\backslash
+text{vecinoizquierda}]$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+For{$neighbor$ 
+\backslash
+textbf{in} $
+\backslash
+text{neighbors}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+If{$neighbor$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+If{$
+\backslash
+lnot 
+\backslash
+text{visited}.
+\backslash
+text{contains}(neighbor)$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                        
+\backslash
+State $
+\backslash
+text{stack}.
+\backslash
+text{push}(
+\backslash
+{ 
+\backslash
+text{node}: neighbor, 
+\backslash
+text{parent}: node 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+ElsIf{$neighbor 
+\backslash
+neq parent$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                        
+\backslash
+If{$perl 
+\backslash
+neq 
+\backslash
+text{this.perls}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                            
+\backslash
+State 
+\backslash
+textbf{return true}
+\end_layout
+
+\begin_layout Plain Layout
+
+                        
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+                    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndWhile
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+textbf{return false}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+El algoritmo 
+\lang english
+verifyInvalidLoop
+\lang spanish
+ [17] verifica si hay un ciclo inválido en el grafo del tablero del juego.
+ Utiliza una estructura de pila para realizar una búsqueda en profundidad
+ (DFS) desde el nodo de inicio dado.
+ Durante la búsqueda, realiza un seguimiento de los nodos visitados y cuenta
+ el número de perlas encontradas.
+ Si encuentra un ciclo inválido, es decir, un nodo que ya ha sido visitado
+ pero no es el nodo padre inmediato, y el número de perlas en el ciclo no
+ es igual al número total de perlas en el tablero, indica un ciclo inválido
+ y devuelve verdadero.
+ Si no se encuentra ningún ciclo inválido, devuelve falso.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Complejidad
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+La complejidad de la sección de verificación está dominada por el algoritmo
+ verifyInvalidLoop, ya que realiza un recorrido en profundidad (DFS) en
+ el grafo.
+ La complejidad de este algoritmo puede variar considerablemente dependiendo
+ de la estructura del tablero y las jugadas que se le pasen a la función.
+ Sin embargo, en la mayoría de los casos, el número máximo de jugadas que
+ se consideran es de 4, lo que hace que la complejidad sea 
+\backslash
+(O(1)
+\backslash
+) en promedio para esta sección.
+ Por otro lado, el algoritmo verifyInvalidLoop puede ser el de mayor complejidad
+, ya que realiza un recorrido DFS completo en el grafo del tablero, lo que
+ implica una complejidad de tiempo 
+\begin_inset Formula $O(N)$
+\end_inset
+
+, donde
+\begin_inset Formula $N$
+\end_inset
+
+ es el número de nodos en el grafo.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Algoritmos busqueda por eliminación
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{GetIsland()}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{GetIsland}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $Islas 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$
+\backslash
+textbf{each } nod 
+\backslash
+textbf{ in } 
+\backslash
+text{nodes}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+If{$
+\backslash
+text{num
+\backslash
+_vecinos}(nod) = 0$ 
+\backslash
+textbf{and} $(
+\backslash
+text{nod.circleType} = 1 
+\backslash
+textbf{ or } 
+\backslash
+text{nod.circleType} = 2)$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $validNeighbors 
+\backslash
+gets 
+\backslash
+text{getAllValidNeighbors}(nod)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+textbf{print}(nod, validNeighbors)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $Islas.
+\backslash
+text{push}(
+\backslash
+{ 
+\backslash
+text{node}: nod, 
+\backslash
+text{validNeighbors}: validNeighbors 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{Islas.sort}((a, b) 
+\backslash
+rightarrow a.validNeighbors - b.validNeighbors)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+textbf{print}(Islas)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$Islas[0]$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} $Islas[0].node$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+Else
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El algoritmo GetIsland[18] busca identificar las perlas en un conjunto de
+ nodos, donde una perla se define como un nodo que no tiene conexiones con
+ otros nodos y que tiene un tipo de círculo específico (ya sea tipo 1 o
+ tipo 2).
+\end_layout
+
+\begin_layout Standard
+El proceso comienza inicializando una lista vacía llamada "Islas", que eventualm
+ente contendrá las perlas encontradas.
+\end_layout
+
+\begin_layout Standard
+Luego, se recorre cada nodo en el conjunto de nodos proporcionado.
+ Para cada nodo, se verifica si tiene cero vecinos y si su tipo de círculo
+ es 1 o 2.
+ Si estas condiciones se cumplen, se obtienen todos los vecinos válidos
+ del nodo utilizando la función "getAllValidNeighbors".
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{conjeturaHorizontalBlanco(node)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{conjeturaHorizontalBlanco}{$node$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{node.circleType} 
+\backslash
+neq 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $nodo
+\backslash
+_derecha 
+\backslash
+gets 
+\backslash
+text{getNode}(node.row, node.col+1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $nodo
+\backslash
+_izq 
+\backslash
+gets 
+\backslash
+text{getNode}(node.row, node.col-1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadaHorizontal 
+\backslash
+gets 
+\backslash
+textbf{null}$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas.
+\backslash
+text{push}(
+\backslash
+{ 
+\backslash
+text{primero}: node, 
+\backslash
+text{segundo}: nodo
+\backslash
+_derecha 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas.
+\backslash
+text{push}(
+\backslash
+{ 
+\backslash
+text{primero}: node, 
+\backslash
+text{segundo}: nodo
+\backslash
+_izq 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadaHorizontal 
+\backslash
+gets 
+\backslash
+text{checkJugadaWhite}(node, posiblesJugadas)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{posiblesJugadaHorizontal.length} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{connectNodesByIndices}(node.row, node.col, nodo
+\backslash
+_derecha.row, nodo
+\backslash
+_derecha.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{connectNodesByIndices}(node.row, node.col, nodo
+\backslash
+_izq.row, nodo
+\backslash
+_izq.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} $posiblesJugadaHorizontal$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+Else
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El algoritmo conjeturaHorizontalBlanco [19] se encarga de verificar si un
+ nodo dado tiene la posibilidad de responder con una jugada válida de tipo
+ horizontal en un contexto específico.
+ La condición inicial verifica si el tipo de círculo del nodo es igual a
+ 1, ya que esta conjetura solo se aplica a nodos de este tipo.
+\end_layout
+
+\begin_layout Standard
+Luego, se obtienen los nodos adyacentes a la derecha e izquierda del nodo
+ dado.
+ Se construye una lista de posibles jugadas con estos nodos.
+ Esta lista se pasa a una función checkJugadaWhite para determinar si la
+ jugada horizontal es válida o no.
+ Si la función devuelve exactamente dos posibles jugadas, significa que
+ la conjetura es válida.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{conjetura
+\backslash
+_arriba
+\backslash
+_arriba
+\backslash
+_negro(node)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{conjetura
+\backslash
+_arriba
+\backslash
+_arriba
+\backslash
+_negro}{$node$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{node.circleType} 
+\backslash
+neq 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $nodo
+\backslash
+_arriba 
+\backslash
+gets 
+\backslash
+text{getNode}(node.row - 1, node.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $nodo
+\backslash
+_arriba
+\backslash
+_arriba 
+\backslash
+gets 
+\backslash
+text{getNode}(node.row - 2, node.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$nodo
+\backslash
+_arriba = 
+\backslash
+textbf{null}$ 
+\backslash
+textbf{or} $nodo
+\backslash
+_arriba
+\backslash
+_arriba = 
+\backslash
+textbf{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadaVertical 
+\backslash
+gets 
+\backslash
+textbf{null}$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas.
+\backslash
+text{push}(
+\backslash
+{ 
+\backslash
+text{primero}: node, 
+\backslash
+text{segundo}: nodo
+\backslash
+_arriba 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas.
+\backslash
+text{push}(
+\backslash
+{ 
+\backslash
+text{primero}: nodo
+\backslash
+_arriba, 
+\backslash
+text{segundo}: nodo
+\backslash
+_arriba
+\backslash
+_arriba 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadaVertical = 
+\backslash
+text{checkJugadaBlack}(node, posiblesJugadas)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{posiblesJugadaVertical.length} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{connectNodesByIndices}(node.row, node.col, nodo
+\backslash
+_arriba.row, nodo
+\backslash
+_arriba.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{connectNodesByIndices}(nodo
+\backslash
+_arriba.row, nodo
+\backslash
+_arriba.col, nodo
+\backslash
+_arriba
+\backslash
+_arriba.row, nodo
+\backslash
+_arriba
+\backslash
+_arriba.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} $posiblesJugadaVertical$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+Else
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El algoritmo conjetura_arriba_arriba_negro [20] se encarga de verificar
+ si un nodo dado, que representa una perla negra, tiene la posibilidad de
+ realizar una jugada válida de tipo vertical extendida en dos casillas hacia
+ arriba.
+\end_layout
+
+\begin_layout Standard
+Primero, se comprueba si el tipo de círculo del nodo es igual a 2, ya que
+ esta conjetura solo se aplica a nodos de este tipo.
+\end_layout
+
+\begin_layout Standard
+Luego, se obtienen los nodos adyacentes hacia arriba del nodo dado, es decir,
+ el nodo directamente arriba (nodo_arriba) y el nodo dos casillas arriba
+ (nodo_arriba_arriba).
+ Si alguno de estos nodos es nulo (porque el nodo dado está en el borde
+ superior del tablero), la función devuelve null, indicando que la conjetura
+ no es válida.
+\end_layout
+
+\begin_layout Standard
+Después, se construye una lista de posibles jugadas con estos dos nodos.
+ Esta lista se pasa a una función checkJugadaBlack para determinar si la
+ jugada vertical extendida es válida o no.
+ Si la función devuelve exactamente dos posibles jugadas, significa que
+ la conjetura es válida.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Complejidad
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Dado que la complejidad de los algoritmos checkJugadaBlack y checkJugadaWhite
+ es 
+\begin_inset Formula $O(n)$
+\end_inset
+
+, donde
+\begin_inset Formula $n$
+\end_inset
+
+ es el número de posibles jugadas a verificar, y considerando que 
+\begin_inset Formula $n$
+\end_inset
+
+ es relativamente pequeño en comparación con el tamaño total del problema,
+ podemos afirmar que la complejidad de las funciones conjetura_arriba_arriba_neg
+ro y conjeturaHorizontalBlanco es
+\begin_inset Formula $O(1)$
+\end_inset
+
+ con un componente 
+\begin_inset Formula $O(n)$
+\end_inset
+
+ proveniente de estas funciones.
 \end_layout
 
 \end_body

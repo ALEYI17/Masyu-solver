@@ -87,7 +87,9 @@ figs-within-sections
 \begin_body
 
 \begin_layout Title
-Taller 1- problema Ordenamiento
+
+\lang spanish
+Proyecto - Masyu
 \end_layout
 
 \begin_layout Author
@@ -2913,6 +2915,7 @@ El algoritmo generateBlackCircleMoves [7] genera y ejecuta movimientos posibles
 
 \begin_layout Standard
 
+\size tiny
 \lang spanish
 \begin_inset ERT
 status open
@@ -6741,6 +6744,978 @@ La complejidad de la sección de verificación está dominada por el algoritmo
 \end_inset
 
  es el número de nodos en el grafo.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Algoritmos busqueda por eliminación
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{GetIsland()}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{GetIsland}{}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $Islas 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$
+\backslash
+textbf{each } nod 
+\backslash
+textbf{ in } 
+\backslash
+text{nodes}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+If{$
+\backslash
+text{num
+\backslash
+_vecinos}(nod) = 0$ 
+\backslash
+textbf{and} $(
+\backslash
+text{nod.circleType} = 1 
+\backslash
+textbf{ or } 
+\backslash
+text{nod.circleType} = 2)$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $validNeighbors 
+\backslash
+gets 
+\backslash
+text{getAllValidNeighbors}(nod)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+textbf{print}(nod, validNeighbors)$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $Islas.
+\backslash
+text{push}(
+\backslash
+{ 
+\backslash
+text{node}: nod, 
+\backslash
+text{validNeighbors}: validNeighbors 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+text{Islas.sort}((a, b) 
+\backslash
+rightarrow a.validNeighbors - b.validNeighbors)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+textbf{print}(Islas)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$Islas[0]$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} $Islas[0].node$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+Else
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El algoritmo GetIsland[18] busca identificar las perlas en un conjunto de
+ nodos, donde una perla se define como un nodo que no tiene conexiones con
+ otros nodos y que tiene un tipo de círculo específico (ya sea tipo 1 o
+ tipo 2).
+\end_layout
+
+\begin_layout Standard
+El proceso comienza inicializando una lista vacía llamada "Islas", que eventualm
+ente contendrá las perlas encontradas.
+\end_layout
+
+\begin_layout Standard
+Luego, se recorre cada nodo en el conjunto de nodos proporcionado.
+ Para cada nodo, se verifica si tiene cero vecinos y si su tipo de círculo
+ es 1 o 2.
+ Si estas condiciones se cumplen, se obtienen todos los vecinos válidos
+ del nodo utilizando la función "getAllValidNeighbors".
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{conjeturaHorizontalBlanco(node)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{conjeturaHorizontalBlanco}{$node$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{node.circleType} 
+\backslash
+neq 1$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $nodo
+\backslash
+_derecha 
+\backslash
+gets 
+\backslash
+text{getNode}(node.row, node.col+1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $nodo
+\backslash
+_izq 
+\backslash
+gets 
+\backslash
+text{getNode}(node.row, node.col-1)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadaHorizontal 
+\backslash
+gets 
+\backslash
+textbf{null}$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas.
+\backslash
+text{push}(
+\backslash
+{ 
+\backslash
+text{primero}: node, 
+\backslash
+text{segundo}: nodo
+\backslash
+_derecha 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas.
+\backslash
+text{push}(
+\backslash
+{ 
+\backslash
+text{primero}: node, 
+\backslash
+text{segundo}: nodo
+\backslash
+_izq 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadaHorizontal 
+\backslash
+gets 
+\backslash
+text{checkJugadaWhite}(node, posiblesJugadas)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{posiblesJugadaHorizontal.length} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{connectNodesByIndices}(node.row, node.col, nodo
+\backslash
+_derecha.row, nodo
+\backslash
+_derecha.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{connectNodesByIndices}(node.row, node.col, nodo
+\backslash
+_izq.row, nodo
+\backslash
+_izq.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} $posiblesJugadaHorizontal$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+Else
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El algoritmo conjeturaHorizontalBlanco [19] se encarga de verificar si un
+ nodo dado tiene la posibilidad de responder con una jugada válida de tipo
+ horizontal en un contexto específico.
+ La condición inicial verifica si el tipo de círculo del nodo es igual a
+ 1, ya que esta conjetura solo se aplica a nodos de este tipo.
+\end_layout
+
+\begin_layout Standard
+Luego, se obtienen los nodos adyacentes a la derecha e izquierda del nodo
+ dado.
+ Se construye una lista de posibles jugadas con estos nodos.
+ Esta lista se pasa a una función checkJugadaWhite para determinar si la
+ jugada horizontal es válida o no.
+ Si la función devuelve exactamente dos posibles jugadas, significa que
+ la conjetura es válida.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{conjetura
+\backslash
+_arriba
+\backslash
+_arriba
+\backslash
+_negro(node)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Procedure{conjetura
+\backslash
+_arriba
+\backslash
+_arriba
+\backslash
+_negro}{$node$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{node.circleType} 
+\backslash
+neq 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $nodo
+\backslash
+_arriba 
+\backslash
+gets 
+\backslash
+text{getNode}(node.row - 1, node.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $nodo
+\backslash
+_arriba
+\backslash
+_arriba 
+\backslash
+gets 
+\backslash
+text{getNode}(node.row - 2, node.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$nodo
+\backslash
+_arriba = 
+\backslash
+textbf{null}$ 
+\backslash
+textbf{or} $nodo
+\backslash
+_arriba
+\backslash
+_arriba = 
+\backslash
+textbf{null}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas 
+\backslash
+gets []$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadaVertical 
+\backslash
+gets 
+\backslash
+textbf{null}$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas.
+\backslash
+text{push}(
+\backslash
+{ 
+\backslash
+text{primero}: node, 
+\backslash
+text{segundo}: nodo
+\backslash
+_arriba 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadas.
+\backslash
+text{push}(
+\backslash
+{ 
+\backslash
+text{primero}: nodo
+\backslash
+_arriba, 
+\backslash
+text{segundo}: nodo
+\backslash
+_arriba
+\backslash
+_arriba 
+\backslash
+})$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $posiblesJugadaVertical = 
+\backslash
+text{checkJugadaBlack}(node, posiblesJugadas)$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$
+\backslash
+text{posiblesJugadaVertical.length} = 2$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{connectNodesByIndices}(node.row, node.col, nodo
+\backslash
+_arriba.row, nodo
+\backslash
+_arriba.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+text{connectNodesByIndices}(nodo
+\backslash
+_arriba.row, nodo
+\backslash
+_arriba.col, nodo
+\backslash
+_arriba
+\backslash
+_arriba.row, nodo
+\backslash
+_arriba
+\backslash
+_arriba.col)$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} $posiblesJugadaVertical$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+Else
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State 
+\backslash
+textbf{return} 
+\backslash
+textbf{null}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndProcedure
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El algoritmo conjetura_arriba_arriba_negro [20] se encarga de verificar
+ si un nodo dado, que representa una perla negra, tiene la posibilidad de
+ realizar una jugada válida de tipo vertical extendida en dos casillas hacia
+ arriba.
+\end_layout
+
+\begin_layout Standard
+Primero, se comprueba si el tipo de círculo del nodo es igual a 2, ya que
+ esta conjetura solo se aplica a nodos de este tipo.
+\end_layout
+
+\begin_layout Standard
+Luego, se obtienen los nodos adyacentes hacia arriba del nodo dado, es decir,
+ el nodo directamente arriba (nodo_arriba) y el nodo dos casillas arriba
+ (nodo_arriba_arriba).
+ Si alguno de estos nodos es nulo (porque el nodo dado está en el borde
+ superior del tablero), la función devuelve null, indicando que la conjetura
+ no es válida.
+\end_layout
+
+\begin_layout Standard
+Después, se construye una lista de posibles jugadas con estos dos nodos.
+ Esta lista se pasa a una función checkJugadaBlack para determinar si la
+ jugada vertical extendida es válida o no.
+ Si la función devuelve exactamente dos posibles jugadas, significa que
+ la conjetura es válida.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Complejidad
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Dado que la complejidad de los algoritmos checkJugadaBlack y checkJugadaWhite
+ es 
+\begin_inset Formula $O(n)$
+\end_inset
+
+, donde
+\begin_inset Formula $n$
+\end_inset
+
+ es el número de posibles jugadas a verificar, y considerando que 
+\begin_inset Formula $n$
+\end_inset
+
+ es relativamente pequeño en comparación con el tamaño total del problema,
+ podemos afirmar que la complejidad de las funciones conjetura_arriba_arriba_neg
+ro y conjeturaHorizontalBlanco es
+\begin_inset Formula $O(1)$
+\end_inset
+
+ con un componente 
+\begin_inset Formula $O(n)$
+\end_inset
+
+ proveniente de estas funciones.
+\end_layout
+
+\begin_layout Subsection
+
+\lang spanish
+Complejidad total 
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Después de realizar un análisis exhaustivo de la complejidad de todos los
+ algoritmos propuestos, se observa que la complejidad total es cuadrática,
+ es decir, 
+\begin_inset Formula $O(n^{2})$
+\end_inset
+
+.
+ Este resultado se obtuvo al determinar la complejidad de cada algoritmo
+ por separado y encontrar que el factor dominante en términos de tiempo
+ de ejecución es proporcional al cuadrado del tamaño del tablero, lo que
+ lleva a una complejidad total cuadrática.
+\end_layout
+
+\begin_layout Part
+
+\lang spanish
+Conclusión
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Este proyecto ha sido revelador en cuanto a la complejidad inherente de
+ resolver un problema SAT como el juego de Masyu.
+ Descubrimos que abordar este desafío puede ser tanto una tarea compleja
+ como extensa debido a la naturaleza combinatoria del problema y a la necesidad
+ de considerar múltiples restricciones y condiciones.
+ Sin embargo, a pesar de esta complejidad, también encontramos que existen
+ diversas estrategias para enfrentar el problema.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+En este proyecto, nos enfocamos en la aplicación de heurísticas para guiar
+ las decisiones del jugador automático.
+ Estas heurísticas se diseñaron para identificar patrones, reconocer jugadas
+ clave y tomar decisiones estratégicas que maximicen las probabilidades
+ de éxito en la resolución del juego.
+ A través de algoritmos eficientes y métodos de optimización, buscamos mejorar
+ continuamente el rendimiento y la efectividad del jugador automático.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Al implementar estas heurísticas, pudimos proporcionar al jugador automático
+ la capacidad de tomar decisiones informadas y adaptativas en tiempo real,
+ lo que mejoró significativamente su capacidad para resolver el juego de
+ manera eficiente.
+ Además, exploramos diferentes enfoques y técnicas para abordar los desafíos
+ específicos del juego, lo que nos permitió ampliar nuestro conocimiento
+ y comprensión del problema.
+\end_layout
+
+\begin_layout Standard
+
+\lang spanish
+Aunque reconocemos que la complejidad del problema SAT sigue siendo un desafío
+ considerable, este proyecto nos ha brindado una valiosa experiencia en
+ el desarrollo de soluciones prácticas y efectivas.
+ Continuaremos explorando nuevas ideas y enfoques para mejorar aún más la
+ capacidad del jugador automático y abordar otros problemas SAT con mayor
+ eficacia en el futuro.
+ En resumen, este proyecto no solo ha sido un ejercicio en la resolución
+ de un problema complejo, sino también una oportunidad para aprender y crecer
+ como desarrolladores y solucionadores de problemas.
 \end_layout
 
 \end_body
