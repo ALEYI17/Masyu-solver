@@ -5,6 +5,15 @@ let selectedCell = null;
 let selectedRow = null;
 let selectedCol = null;
 let grafo = null;
+//////////////////////////////////////
+//                                  //
+//     ¡PRUEBAS UNITARIAS!          //
+//   (Código duplicado por limitaciones    //
+//    de importación en js)    //
+//        ¡Correr con node test.spec.js!     //
+//                                  //
+//////////////////////////////////////
+
 
  class Node {
     constructor(row, col) {
@@ -596,7 +605,7 @@ let grafo = null;
                   let jugada = this.completeLineThrough(node)
                   let nodesource = jugada.primero
                   let nodedest = jugada.segundo
-                  DrawPlay(nodesource,nodedest);
+                  
                   node.lineThrough=true
                   jugadasPosiblesWhite.push(jugada)
                 }
@@ -1199,3 +1208,118 @@ function testGetAdjacents() {
 }
 
 testGetAdjacents();
+
+function testNumVecinos() {
+    const gridSize = 3;
+    const graph = new Graph(gridSize);
+
+    // Asignar vecinos a un nodo central
+    const centerNode = graph.getNode(1, 1);
+    graph.connectNodesByIndices(1, 1, 0, 1); // Conectar con el nodo de arriba
+    graph.connectNodesByIndices(1, 1, 2, 1); // Conectar con el nodo de abajo
+    graph.connectNodesByIndices(1, 1, 1, 0); // Conectar con el nodo de la izquierda
+    graph.connectNodesByIndices(1, 1, 1, 2); // Conectar con el nodo de la derecha
+
+    // Verificar número de vecinos
+    const numVecinos = graph.num_vecinos(centerNode);
+    console.assert(numVecinos === 4, `Test failed: Expected 4 neighbors, got ${numVecinos}.`);
+
+    // Remover un vecino y verificar de nuevo
+    graph.deleteConnectionByIndices(1, 1, 0, 1); // Desconectar del nodo de arriba
+    const numVecinosAfterRemoval = graph.num_vecinos(centerNode);
+    console.assert(numVecinosAfterRemoval === 3, `Test failed: Expected 3 neighbors, got ${numVecinosAfterRemoval}.`);
+
+    // Caso sin vecinos
+    const isolatedNode = graph.getNode(0, 0);
+    const numVecinosIsolated = graph.num_vecinos(isolatedNode);
+    console.assert(numVecinosIsolated === 0, `Test failed: Expected 0 neighbors, got ${numVecinosIsolated}.`);
+}
+
+// Ejecutar la prueba
+testNumVecinos();
+
+function testCompleteWhiteCircle() {
+    const gridSize = 3;
+    const graph = new Graph(gridSize);
+
+    // Asignar círculo blanco a un nodo con un solo vecino
+    const nodeWithOneNeighbor = graph.getNode(1, 1);
+    nodeWithOneNeighbor.circleType = 1;
+    graph.connectNodesByIndices(1, 1, 1, 0); // Conectar con el nodo de la izquierda
+
+    // Ejecutar la función para completar el círculo blanco
+    const possibleMoves = graph.CompleteWhiteCircle();
+
+    // Verificar que haya una jugada posible
+    console.assert(possibleMoves.length === 1, `Test failed: Expected 1 possible move, got ${possibleMoves.length}.`);
+
+    // Verificar que la línea a través del nodo se haya completado correctamente
+    const completedMove = possibleMoves[0];
+    console.assert(completedMove.primero === nodeWithOneNeighbor, "Test failed: Expected node to be the starting point of the completed move.");
+    console.assert(completedMove.segundo.vecinoderecha === null, "Test failed: Expected line to be completed to the right.");
+
+    //console.log("Completed move:", completedMove);
+}
+
+// Ejecutar la prueba
+testCompleteWhiteCircle();
+
+function testCheckLineThrough() {
+    const gridSize = 5;
+    const graph = new Graph(gridSize);
+
+    // Caso 1: Línea a través del nodo horizontalmente
+    const horizontalNode = graph.getNode(2, 2);
+    graph.connectNodesByIndices(2, 2, 2, 1); // Conectar con el nodo de la izquierda
+    graph.connectNodesByIndices(2, 2, 2, 3); // Conectar con el nodo de la derecha
+    const hasLineThrough1 = graph.checkLineThrough(horizontalNode);
+    console.assert(hasLineThrough1 === true, "Test failed: Expected line through horizontally.");
+
+
+    console.log("testCheckLineThrough passed.");
+}
+
+// Ejecutar la prueba
+testCheckLineThrough();
+
+function testIsConnectionMade() {
+    const gridSize = 5;
+    const graph = new Graph(gridSize);
+
+    // Caso 1: Conexión entre dos nodos
+    graph.connectNodesByIndices(2, 2, 2, 3); // Conectar nodo (2, 2) con el nodo (2, 3)
+    const isConnected1 = graph.isConnectionMade(2, 2, 2, 3);
+    console.assert(isConnected1 === true, "Test failed: Expected connection made between nodes.");
+
+    console.log(" testIsConnectionMade passed.");
+}
+
+// Ejecutar la prueba
+testIsConnectionMade();
+
+
+function testIfBranch() {
+    const gridSize = 5;
+    const graph = new Graph(gridSize);
+
+    // Caso 1: Nodo con 3 vecinos
+    const nodeWithThreeNeighbors = graph.getNode(2, 2);
+    graph.connectNodesByIndices(2, 2, 2, 1); // Conectar con el nodo de la izquierda
+    graph.connectNodesByIndices(2, 2, 2, 3); // Conectar con el nodo de la derecha
+    graph.connectNodesByIndices(2, 2, 1, 2); // Conectar con el nodo de arriba
+    const isBranch1 = graph.ifBranch(nodeWithThreeNeighbors);
+    console.assert(isBranch1 === true, "Test failed: Expected true for a node with three neighbors.");
+
+    // Caso 2: Nodo con menos de 3 vecinos
+    const nodeWithTwoNeighbors = graph.getNode(1, 1);
+    graph.connectNodesByIndices(1, 1, 0, 1); // Conectar con el nodo de arriba
+    graph.connectNodesByIndices(1, 1, 2, 1); // Conectar con el nodo de abajo
+    const isBranch2 = graph.ifBranch(nodeWithTwoNeighbors);
+    console.assert(isBranch2 === false, "Test failed: Expected false for a node with two neighbors.");
+
+    console.log("testIfBranch passed.");
+}
+
+// Ejecutar la prueba
+testIfBranch();
+
