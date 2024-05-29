@@ -692,7 +692,7 @@ class Graph {
                 if(node && node.circleType === null && this.num_vecinos(node)  == 1){
                   let vecino = this.getAdjacentsall(row,col)
                   for(let veci of vecino){
-                    if(veci == null){
+                    if(veci == null || veci.deadSpot){
                       continue;
                     }
                     if(this.getAdjacents(veci.row, veci.col).length !== 2 &&  !(this.isConnectionMade(row,col,veci.row,veci.col))){
